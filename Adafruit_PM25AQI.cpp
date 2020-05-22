@@ -1,13 +1,13 @@
 /*!
- * @file Adafruit_PMSAQI.cpp
+ * @file Adafruit_PM25AQI.cpp
  *
- * @mainpage Adafruit PMS air quality sensor driver
+ * @mainpage Adafruit PM2.5 air quality sensor driver
  *
  * @section intro_sec Introduction
  *
- * This is the documentation for Adafruit's PMS AQI driver for the
+ * This is the documentation for Adafruit's PM2.5 AQI driver for the
  * Arduino platform.  It is designed specifically to work with the
- * Adafruit PMS Air quality sensors: http://www.adafruit.com/products/4632
+ * Adafruit PM2.5 Air quality sensors: http://www.adafruit.com/products/4632
  *
  * These sensors use I2C or UART to communicate.
  *
@@ -24,12 +24,12 @@
  *
  */
 
-#include "Adafruit_PMSAQI.h"
+#include "Adafruit_PM25AQI.h"
 
 /*!
- *  @brief  Instantiates a new PMSAQI class
+ *  @brief  Instantiates a new PM25AQI class
  */
-Adafruit_PMSAQI::Adafruit_PMSAQI() {}
+Adafruit_PM25AQI::Adafruit_PM25AQI() {}
 
 /*!
  *  @brief  Setups the hardware and detects a valid PMSA003I. Initializes I2C.
@@ -37,7 +37,7 @@ Adafruit_PMSAQI::Adafruit_PMSAQI() {}
  *          Optional pointer to I2C interface, otherwise use Wire
  *  @return True if PMSA003I found on I2C, False if something went wrong!
  */
-bool Adafruit_PMSAQI::begin_I2C(TwoWire *theWire) {
+bool Adafruit_PM25AQI::begin_I2C(TwoWire *theWire) {
   if (!i2c_dev) {
     i2c_dev = new Adafruit_I2CDevice(PMSA003I_I2CADDR_DEFAULT, theWire);
   }
@@ -50,7 +50,7 @@ bool Adafruit_PMSAQI::begin_I2C(TwoWire *theWire) {
 }
 
 
-bool Adafruit_PMSAQI::read(PMS_AQI_Data *data) {
+bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
   uint8_t buffer[32];
   uint16_t sum = 0;
 

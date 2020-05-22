@@ -1,9 +1,9 @@
 /*!
- * @file Adafruit_PMSAQI.h
+ * @file Adafruit_PM25AQI.h
  *
- * This is the documentation for Adafruit's PMS AQI driver for the
+ * This is the documentation for Adafruit's PM25 AQI driver for the
  * Arduino platform.  It is designed specifically to work with the
- * Adafruit PMS air quality sensors: http://www.adafruit.com/products/4632
+ * Adafruit PM25 air quality sensors: http://www.adafruit.com/products/4632
  *
  * These sensors use I2C or UART to communicate.
  *
@@ -30,17 +30,17 @@ typedef struct PMSAQIdata {
   uint16_t particles_03um, particles_05um, particles_10um, particles_25um, particles_50um, particles_100um;
   uint16_t unused;
   uint16_t checksum;
-} PMS_AQI_Data;
+} PM25_AQI_Data;
 
 /*!
  *  @brief  Class that stores state and functions for interacting with
- *          PMSA003I Air Quality Sensor
+ *          PM2.5 Air Quality Sensor
  */
-class Adafruit_PMSAQI {
+class Adafruit_PM25AQI {
 public:
-  Adafruit_PMSAQI();
+  Adafruit_PM25AQI();
   bool begin_I2C(TwoWire *theWire = &Wire);
-  bool read(PMS_AQI_Data *data);
+  bool read(PM25_AQI_Data *data);
 
 private:
   Adafruit_I2CDevice *i2c_dev = NULL;
