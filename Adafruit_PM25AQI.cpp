@@ -49,6 +49,18 @@ bool Adafruit_PM25AQI::begin_I2C(TwoWire *theWire) {
   return true;
 }
 
+/*!
+ *  @brief  Setups the hardware and detects a valid UART PM2.5
+ *  @param  theSerial
+ *          Pointer to Stream (HardwareSerial/SoftwareSerial) interface
+ *  @return True
+ */
+bool Adafruit_PM25AQI::begin_UART(Stream *theSerial) {
+  serial_dev = theSerial;
+
+  return true;
+}
+
 
 bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
   uint8_t buffer[32];
@@ -62,6 +74,19 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
     if (! i2c_dev->read(buffer, 32)) {
       return false;
     }
+  } else if (serial_dev) { // ok using uart
+    if (! serial_dev->available()) {
+      return false;
+    }
+    if (serial_dev->peek() != 0x42) {
+      serial_dev->read();
+      return false;
+    }
+    // Now read all 32 bytes
+    if (serial_dev->available() < 32) {
+      return false;
+    }
+    serial_dev->readBytes(buffer, 32);
   } else {
     return false;
   }

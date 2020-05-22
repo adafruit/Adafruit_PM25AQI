@@ -40,9 +40,11 @@ class Adafruit_PM25AQI {
 public:
   Adafruit_PM25AQI();
   bool begin_I2C(TwoWire *theWire = &Wire);
+  bool begin_UART(Stream *theStream);
   bool read(PM25_AQI_Data *data);
 
 private:
   Adafruit_I2CDevice *i2c_dev = NULL;
+  Stream *serial_dev = NULL;
   uint8_t _readbuffer[32];
 };
