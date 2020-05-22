@@ -35,7 +35,7 @@ typedef struct PMSAQIdata {
   uint16_t particles_03um, ///< 0.3um Particle Count
       particles_05um,      ///< 0.5um Particle Count
       particles_10um,      ///< 1.0um Particle Count
-      articles_25um,       ///< 2.5um Particle Count
+      particles_25um,      ///< 2.5um Particle Count
       particles_50um,      ///< 5.0um Particle Count
       particles_100um;     ///< 10.0um Particle Count
   uint16_t unused;         ///< Unused
