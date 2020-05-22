@@ -23,13 +23,23 @@
 // the i2c address
 #define PMSA003I_I2CADDR_DEFAULT 0x12 ///< PMSA003I has only one I2C address
 
+/**! Structure holding Plantower's standard packet **/
 typedef struct PMSAQIdata {
-  uint16_t framelen;
-  uint16_t pm10_standard, pm25_standard, pm100_standard;
-  uint16_t pm10_env, pm25_env, pm100_env;
-  uint16_t particles_03um, particles_05um, particles_10um, particles_25um, particles_50um, particles_100um;
-  uint16_t unused;
-  uint16_t checksum;
+  uint16_t framelen;       ///< How long this data chunk is
+  uint16_t pm10_standard,  ///< Standard PM1.0
+      pm25_standard,       ///< Standard PM2.5
+      pm100_standard;      ///< Standard PM10.0
+  uint16_t pm10_env,       ///< Environmental PM1.0
+      pm25_env,            ///< Environmental PM2.5
+      pm100_env;           ///< Environmental PM10.0
+  uint16_t particles_03um, ///< 0.3um Particle Count
+      particles_05um,      ///< 0.5um Particle Count
+      particles_10um,      ///< 1.0um Particle Count
+      articles_25um,       ///< 2.5um Particle Count
+      particles_50um,      ///< 5.0um Particle Count
+      particles_100um;     ///< 10.0um Particle Count
+  uint16_t unused;         ///< Unused
+  uint16_t checksum;       ///< Packet checksum
 } PM25_AQI_Data;
 
 /*!

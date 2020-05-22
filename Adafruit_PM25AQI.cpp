@@ -61,7 +61,6 @@ bool Adafruit_PM25AQI::begin_UART(Stream *theSerial) {
   return true;
 }
 
-
 /*!
  *  @brief  Setups the hardware and detects a valid UART PM2.5
  *  @param  data
@@ -72,16 +71,16 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
   uint8_t buffer[32];
   uint16_t sum = 0;
 
-  if (! data) {
+  if (!data) {
     return false;
   }
 
-  if (i2c_dev) {  // ok using i2c?
-    if (! i2c_dev->read(buffer, 32)) {
+  if (i2c_dev) { // ok using i2c?
+    if (!i2c_dev->read(buffer, 32)) {
       return false;
     }
   } else if (serial_dev) { // ok using uart
-    if (! serial_dev->available()) {
+    if (!serial_dev->available()) {
       return false;
     }
     if (serial_dev->peek() != 0x42) {
@@ -103,15 +102,15 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
   }
 
   // get checksum ready
-  for (uint8_t i=0; i<30; i++) {
+  for (uint8_t i = 0; i < 30; i++) {
     sum += buffer[i];
   }
 
   // The data comes in endian'd, this solves it so it works on all platforms
   uint16_t buffer_u16[15];
-  for (uint8_t i=0; i<15; i++) {
-    buffer_u16[i] = buffer[2 + i*2 + 1];
-    buffer_u16[i] += (buffer[2 + i*2] << 8);
+  for (uint8_t i = 0; i < 15; i++) {
+    buffer_u16[i] = buffer[2 + i * 2 + 1];
+    buffer_u16[i] += (buffer[2 + i * 2] << 8);
   }
 
   // put it into a nice struct :)
