@@ -62,6 +62,12 @@ bool Adafruit_PM25AQI::begin_UART(Stream *theSerial) {
 }
 
 
+/*!
+ *  @brief  Setups the hardware and detects a valid UART PM2.5
+ *  @param  data
+ *          Pointer to PM25_AQI_Data that will be filled by read()ing
+ *  @return True on successful read, false if timed out or bad data
+ */
 bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
   uint8_t buffer[32];
   uint16_t sum = 0;

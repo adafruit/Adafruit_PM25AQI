@@ -1,4 +1,4 @@
-/* Test sketch for Adafruit PM2.5 sensor with UART or I2C (/
+/* Test sketch for Adafruit PM2.5 sensor with UART or I2C */
 
 #include "Adafruit_PM25AQI.h"
 
