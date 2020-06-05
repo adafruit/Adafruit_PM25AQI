@@ -3,7 +3,7 @@
 This is the Adafruit PM25AQI Arduino Library for Arduino
 Tested and works great with the Adafruit PM2.5 Air Quality Sensor and Breadboard Adapter Kit
 
-[<img src="assets/board.png?raw=true" width="500px">](https://www.adafruit.com/products/3686)
+[<img src="https://cdn-shop.adafruit.com/1200x900/3686-10.jpg" width="500px">](https://www.adafruit.com/products/3686)
 
 Adafruit invests time and resources providing this open source code, please support Adafruit and open-source hardware by purchasing products from Adafruit!
 
