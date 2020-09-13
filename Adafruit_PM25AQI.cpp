@@ -83,6 +83,14 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
     if (!serial_dev->available()) {
       return false;
     }
+    for (int skipped = 0;
+	 (skipped < 32) && (serial_dev->peek() != 0x42);
+	 skipped++) {
+      serial_dev->read();
+      if (!serial_dev->available()) {
+	return false;
+      }
+    }
     if (serial_dev->peek() != 0x42) {
       serial_dev->read();
       return false;
