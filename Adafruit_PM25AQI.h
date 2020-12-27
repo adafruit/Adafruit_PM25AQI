@@ -17,6 +17,9 @@
  *
  */
 
+#ifndef ADAFRUIT_PM25AQI_H
+#define ADAFRUIT_PM25AQI_H
+
 #include "Arduino.h"
 #include <Adafruit_I2CDevice.h>
 
@@ -58,3 +61,5 @@ private:
   Stream *serial_dev = NULL;
   uint8_t _readbuffer[32];
 };
+
+#endif
