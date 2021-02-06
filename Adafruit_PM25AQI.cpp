@@ -91,15 +91,26 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
         return false;
       }
     }
-    if (serial_dev->peek() != 0x42) {
-      serial_dev->read();
+    if (serial_dev->read() != 0x42) { //read assuming you got the first byte
       return false;
     }
-    // Now read all 32 bytes
-    if (serial_dev->available() < 32) {
+    //now catching 1 in 256 edge-case where last byte of checksum is 0x42 too, being mistaken for first start byte, leading to byte shift and checksum mismatch 
+	  if (serial_dev->peek() == 0x42) { //peek if next byte might match first start byte
+      serial_dev->read(); // if yes last assumption was wrong, read again assuming you now got the start
+    }
+	  if (serial_dev->read() != 0x4d) { //read & check the second byte
+	    return false;
+    }
+	  // Now the first two bytes are guaranteed to be 0x42 0x4d but have already been read
+	  buffer[0] = 0x42;
+	  buffer[1] = 0x4d;
+    // Now read remaining 30 bytes
+    if (serial_dev->available() < 30) {
       return false;
     }
-    serial_dev->readBytes(buffer, 32);
+    for (uint8_t i=2; i<32; i++){
+		  buffer[i] = serial_dev->read();
+	  }
   } else {
     return false;
   }
