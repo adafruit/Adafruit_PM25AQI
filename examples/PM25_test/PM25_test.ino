@@ -42,6 +42,12 @@ void loop() {
   
   if (! aqi.read(&data)) {
     Serial.println("Could not read from AQI");
+
+    //print verbose info
+    // Serial.println("FAIL reading. Error info:");
+    // printInfo(data);
+    // Serial.println();
+    
     delay(500);  // try again in a bit!
     return;
   }
@@ -67,7 +73,31 @@ void loop() {
   Serial.print(F("Particles > 5.0um / 0.1L air:")); Serial.println(data.particles_50um);
   Serial.print(F("Particles > 10 um / 0.1L air:")); Serial.println(data.particles_100um);
   Serial.println(F("---------------------------------------"));
-  
+  Serial.println(F("AQI"));
+  Serial.print(F("PM2.5 AQI US: ")); Serial.print(data.aqi_pm25_us);
+  Serial.print(F("PM10  AQI US: ")); Serial.println(data.aqi_pm100_us);
+  //Serial.print(F("\t\tPM2.5 AQI China: ")); Serial.println(data.aqi_pm25_china);
+  //Serial.print(F("\t\tPM10  AQI China: ")); Serial.println(data.aqi_pm100_china);
+  Serial.println(F("---------------------------------------"));  
 
   delay(1000);
+}
+
+void printInfo(PM25_AQI_Data data)
+{
+  Serial.print(F("startbyte_fail: ")); Serial.println(data.startbyte_fail);
+  Serial.print(F("checksum_fail: ")); Serial.println(data.checksum_fail);
+  Serial.print(F("framelen: ")); Serial.println(data.framelen);
+  Serial.print(F("version: ")); Serial.println(data.version);
+  Serial.print(F("error_code: ")); Serial.println(data.error_code);
+  Serial.print(F("checksum: ")); Serial.println(data.checksum);
+  Serial.print(F("datasum: ")); Serial.println(data.datasum);
+  Serial.println(F("raw data: "));
+  for(int i = 0; i < sizeof(data.raw); i++)
+  {
+    Serial.print(data.raw[i]);
+    Serial.print("\t");
+    if((i+1)%2==0)
+      Serial.println();
+  }
 }

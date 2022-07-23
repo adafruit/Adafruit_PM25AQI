@@ -24,6 +24,7 @@
  *
  */
 
+#include <math.h>
 #include "Adafruit_PM25AQI.h"
 
 /*!
@@ -104,17 +105,21 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
     return false;
   }
 
+  memcpy((void *)data->raw, (void *)buffer, 32);
+
   // Check that start byte is correct!
-  if (buffer[0] != 0x42) {
+  if (buffer[0] != 0x42 || buffer[1] != 0x4d) {
+    data->startbyte_fail = 1;
     return false;
   }
+  else{data->startbyte_fail = 0;}
 
   // get checksum ready
   for (uint8_t i = 0; i < 30; i++) {
     sum += buffer[i];
   }
 
-  // The data comes in endian'd, this solves it so it works on all platforms
+  // The data comes in big endian (MSB first), this solves it so it works on all platforms
   uint16_t buffer_u16[15];
   for (uint8_t i = 0; i < 15; i++) {
     buffer_u16[i] = buffer[2 + i * 2 + 1];
@@ -124,10 +129,192 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
   // put it into a nice struct :)
   memcpy((void *)data, (void *)buffer_u16, 30);
 
+  data->datasum = sum;
   if (sum != data->checksum) {
+    data->checksum_fail = 1;
     return false;
   }
+  else{data->checksum_fail = 0;}
+
+  data->version=buffer[28];
+  data->error_code=buffer[29];
+
+  //convert concentration to AQI
+  data->aqi_pm25_us=pm25_aqi_us(data->pm25_env);
+  data->aqi_pm25_china=pm25_aqi_china(data->pm25_env);
+  data->aqi_pm100_us=pm100_aqi_us(data->pm100_env);
+  data->aqi_pm100_china=pm100_aqi_china(data->pm100_env);
 
   // success!
   return true;
+}
+
+uint16_t Adafruit_PM25AQI::pm25_aqi_us(float concentration) {
+  float c;
+  float AQI;
+  c=(floor(10*concentration))/10;
+  if(c<0)
+    AQI=0;
+  else if (c>=0 && c<12.1f)
+  {
+    AQI=linear(50,0,12,0,c);
+  }
+  else if (c>=12.1f && c<35.5f)
+  {
+    AQI=linear(100,51,35.4f,12.1f,c);
+  }
+  else if (c>=35.5f && c<55.5f)
+  {
+    AQI=linear(150,101,55.4f,35.5f,c);
+  }
+  else if (c>=55.5f && c<150.5f)
+  {
+    AQI=linear(200,151,150.4f,55.5f,c);
+  }
+  else if (c>=150.5f && c<250.5f)
+  {
+    AQI=linear(300,201,250.4f,150.5f,c);
+  }
+  else if (c>=250.5f && c<350.5f)
+  {
+    AQI=linear(400,301,350.4f,250.5f,c);
+  }
+  else if (c>=350.5f && c<500.5f)
+  {
+    AQI=linear(500,401,500.4f,350.5f,c);
+  }
+  else
+  {
+    AQI=99999;//
+  }
+  return round(AQI);
+}
+
+uint16_t Adafruit_PM25AQI::pm100_aqi_us(float concentration) {
+  float c;
+  float AQI;
+  c=concentration;
+  if(c<0)
+    AQI=0;
+  else if (c<55)
+  {
+    AQI=linear(50,0,55,0,c);
+  }
+  else if (c<155)
+  {
+    AQI=linear(100,51,155,55,c);
+  }
+  else if (c<255)
+  {
+    AQI=linear(150,101,255,155,c);
+  }
+  else if (c<355)
+  {
+    AQI=linear(200,151,355,255,c);
+  }
+  else if (c<425)
+  {
+    AQI=linear(300,201,425,355,c);
+  }
+  else if (c<505)
+  {
+    AQI=linear(400,301,505,425,c);
+  }
+  else if (c<605)
+  {
+    AQI=linear(500,401,605,505,c);
+  }
+  else
+  {
+    AQI=99999;//
+  }
+  return round(AQI);
+}
+
+uint16_t Adafruit_PM25AQI::pm25_aqi_china(float concentration) {
+  float c;
+  float AQI;
+  c=concentration;
+  if(c<0)
+    AQI=0;
+  else if (c<=35)
+  {
+    AQI=linear(50,0,35,0,c);
+  }
+  else if (c<=75)
+  {
+    AQI=linear(100,51,75,35,c);
+  }
+  else if (c<=115)
+  {
+    AQI=linear(150,101,115,75,c);
+  }
+  else if (c<=150)
+  {
+    AQI=linear(200,151,150,115,c);
+  }
+  else if (c<=250)
+  {
+    AQI=linear(300,201,250,150,c);
+  }
+  else if (c<=350)
+  {
+    AQI=linear(400,301,350,250,c);
+  }
+  else if (c<=500)
+  {
+    AQI=linear(500,401,500,350,c);
+  }
+  else
+  {
+    AQI=99999;//
+  }
+  return round(AQI);
+}
+
+uint16_t Adafruit_PM25AQI::pm100_aqi_china(float concentration) {
+  float c;
+  float AQI;
+  c=concentration;
+  if(c<0)
+    AQI=0;
+  else if (c<=50)
+  {
+    AQI=linear(50,0,50,0,c);
+  }
+  else if (c<=150)
+  {
+    AQI=linear(100,51,150,50,c);
+  }
+  else if (c<=250)
+  {
+    AQI=linear(150,101,250,150,c);
+  }
+  else if (c<=350)
+  {
+    AQI=linear(200,151,350,250,c);
+  }
+  else if (c<=420)
+  {
+    AQI=linear(300,201,420,350,c);
+  }
+  else if (c<=500)
+  {
+    AQI=linear(400,301,500,420,c);
+  }
+  else if (c<=600)
+  {
+    AQI=linear(500,401,600,500,c);
+  }
+  else
+  {
+    AQI=99999;//
+  }
+  return round(AQI);
+}
+
+float Adafruit_PM25AQI::linear(uint16_t aqi_high, uint16_t aqi_low, float conc_high, float conc_low, float concentration) {
+  float f;
+  f = ((concentration-conc_low)/(conc_high-conc_low)) * (aqi_high-aqi_low) + aqi_low;
+  return f;
 }
