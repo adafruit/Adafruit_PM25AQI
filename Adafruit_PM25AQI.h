@@ -43,16 +43,16 @@ typedef struct PMSAQIdata {
       particles_100um;     ///< 10.0um Particle Count
   uint16_t unused;         ///< Unused (version + error code)
 
-//when copy data from int8 array to this struct with memcpy, error_code need to be defined before version
-//otherwise they are swapped.
-//reason is that arduino is little endian and memcpy swap the bytes when copy int16 into the 2 int8s?
-//will manually copy them instead
-  // uint8_t error_code;         ///< 
-  // uint8_t version;         ///< 
+  // when copy data from int8 array to this struct with memcpy, error_code need
+  // to be defined before version otherwise they are swapped. reason is that
+  // arduino is little endian and memcpy swap the bytes when copy int16 into the
+  // 2 int8s? will manually copy them instead
+  // uint8_t error_code;         ///<
+  // uint8_t version;         ///<
 
-  uint16_t checksum;       ///< Packet checksum
+  uint16_t checksum; ///< Packet checksum
 
-  //verbose infos:
+  // verbose infos:
   uint16_t datasum;
   uint8_t startbyte_fail;
   uint8_t checksum_fail;
@@ -60,11 +60,11 @@ typedef struct PMSAQIdata {
   uint8_t error_code;
   uint8_t raw[32];
 
-  //AQI conversion results:
-  uint8_t aqi_pm25_us;//pm2.5 AQI of United States
-  uint8_t aqi_pm100_us;//pm10 AQI of United States
-  uint8_t aqi_pm25_china;//pm2.5 AQI of China
-  uint8_t aqi_pm100_china;//pm10 AQI of China
+  // AQI conversion results:
+  uint8_t aqi_pm25_us;     // pm2.5 AQI of United States
+  uint8_t aqi_pm100_us;    // pm10 AQI of United States
+  uint8_t aqi_pm25_china;  // pm2.5 AQI of China
+  uint8_t aqi_pm100_china; // pm10 AQI of China
 
 } PM25_AQI_Data;
 
@@ -83,7 +83,8 @@ public:
   uint16_t pm25_aqi_china(float concentration);
   uint16_t pm100_aqi_us(float concentration);
   uint16_t pm100_aqi_china(float concentration);
-  float linear(uint16_t aqi_high, uint16_t aqi_low, float conc_high, float conc_low, float concentration);
+  float linear(uint16_t aqi_high, uint16_t aqi_low, float conc_high,
+               float conc_low, float concentration);
 
 private:
   Adafruit_I2CDevice *i2c_dev = NULL;
