@@ -53,7 +53,7 @@ typedef struct PMSAQIdata {
   uint16_t checksum; ///< Packet checksum
 
   // verbose infos:
-  uint16_t datasum;       ///< the calculated sum of the data in the current packet
+  uint16_t datasum; ///< the calculated sum of the data in the current packet
   uint8_t startbyte_fail; ///< startbyte check fail?: 1 - fail, 0 - success
   uint8_t checksum_fail;  ///< checksum check fail?: 1 - fail, 0 - success
   uint8_t version;        ///< version number
