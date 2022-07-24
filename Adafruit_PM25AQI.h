@@ -53,18 +53,18 @@ typedef struct PMSAQIdata {
   uint16_t checksum; ///< Packet checksum
 
   // verbose infos:
-  uint16_t datasum;
-  uint8_t startbyte_fail;
-  uint8_t checksum_fail;
-  uint8_t version;
-  uint8_t error_code;
-  uint8_t raw[32];
+  uint16_t datasum;       ///< the calculated sum of the data in the current packet
+  uint8_t startbyte_fail; ///< startbyte check fail?: 1 - fail, 0 - success
+  uint8_t checksum_fail;  ///< checksum check fail?: 1 - fail, 0 - success
+  uint8_t version;        ///< version number
+  uint8_t error_code;     ///< error code
+  uint8_t raw[32];        ///< raw packet data
 
   // AQI conversion results:
-  uint8_t aqi_pm25_us;     // pm2.5 AQI of United States
-  uint8_t aqi_pm100_us;    // pm10 AQI of United States
-  uint8_t aqi_pm25_china;  // pm2.5 AQI of China
-  uint8_t aqi_pm100_china; // pm10 AQI of China
+  uint8_t aqi_pm25_us;     ///< pm2.5 AQI of United States
+  uint8_t aqi_pm100_us;    ///< pm10 AQI of United States
+  uint8_t aqi_pm25_china;  ///< pm2.5 AQI of China
+  uint8_t aqi_pm100_china; ///< pm10 AQI of China
 
 } PM25_AQI_Data;
 

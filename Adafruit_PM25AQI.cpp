@@ -152,6 +152,12 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
   return true;
 }
 
+/*!
+ *  @brief  Get AQI of PM2.5 in US standard
+ *  @param  concentration
+ *          the environmental concentration of pm2.5 in ug/m3
+ *  @return AQI number. 0 to 500 for valid calculation. 99999 for out of range.
+ */
 uint16_t Adafruit_PM25AQI::pm25_aqi_us(float concentration) {
   float c;
   float AQI;
@@ -178,6 +184,12 @@ uint16_t Adafruit_PM25AQI::pm25_aqi_us(float concentration) {
   return round(AQI);
 }
 
+/*!
+ *  @brief  Get AQI of PM10 in US standard
+ *  @param  concentration
+ *          the environmental concentration of pm10 in ug/m3
+ *  @return AQI number. 0 to 500 for valid calculation. 99999 for out of range.
+ */
 uint16_t Adafruit_PM25AQI::pm100_aqi_us(float concentration) {
   float c;
   float AQI;
@@ -204,6 +216,12 @@ uint16_t Adafruit_PM25AQI::pm100_aqi_us(float concentration) {
   return round(AQI);
 }
 
+/*!
+ *  @brief  Get AQI of PM2.5 in China standard
+ *  @param  concentration
+ *          the environmental concentration of pm2.5 in ug/m3
+ *  @return AQI number. 0 to 500 for valid calculation. 99999 for out of range.
+ */
 uint16_t Adafruit_PM25AQI::pm25_aqi_china(float concentration) {
   float c;
   float AQI;
@@ -230,6 +248,12 @@ uint16_t Adafruit_PM25AQI::pm25_aqi_china(float concentration) {
   return round(AQI);
 }
 
+/*!
+ *  @brief  Get AQI of PM10 in China standard
+ *  @param  concentration
+ *          the environmental concentration of pm10 in ug/m3
+ *  @return AQI number. 0 to 500 for valid calculation. 99999 for out of range.
+ */
 uint16_t Adafruit_PM25AQI::pm100_aqi_china(float concentration) {
   float c;
   float AQI;
@@ -256,6 +280,16 @@ uint16_t Adafruit_PM25AQI::pm100_aqi_china(float concentration) {
   return round(AQI);
 }
 
+/*!
+ *  @brief  Linearly map a concentration value to its AQI level
+ *  @param  aqi_high max aqi of the calculating range
+ *  @param  aqi_low min aqi of the calculating range
+ *  @param  conc_high max concentration value (ug/m3) of the calculating range
+ *  @param  conc_low min concentration value (ug/m3) of the calculating range
+ *  @param  concentration
+ *          the concentration value to be calculated
+ *  @return Calculated AQI value
+ */
 float Adafruit_PM25AQI::linear(uint16_t aqi_high, uint16_t aqi_low,
                                float conc_high, float conc_low,
                                float concentration) {
