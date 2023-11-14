@@ -88,25 +88,35 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
     int skipped = 0;
     // Find the start character in the stream (0x42 for Adafruit PM sensors,
     // 0x16 for the Cubic PM1006)
+    Serial.println("L91");
     while ((skipped < 32) && (serial_dev->peek() != 0x42) &&
-           (serial_dev->peek != 0x16)) {
+           (serial_dev->peek() != 0x16)) {
       serial_dev->read();
+      Serial.print("peek L94: ");
+      Serial.println(serial_dev->peek());
+      delay(15);
       skipped++;
       if (!serial_dev->available()) {
         return false;
       }
     }
     // Check for the start character in the stream
+    Serial.println("Checking for start character in stream");
     if ((serial_dev->peek() != 0x42) || (serial_dev->peek() != 0x16)) {
+      Serial.println("ERROR: Did not find start character in stream!");
+      Serial.println(serial_dev->peek());
       serial_dev->read();
+      delay(15);
       return false; // We did not find the start character
     }
     // Are we using the PM1006?
+    Serial.println("Checking for PM1006");
     if (serial_dev->peek() == 0x16) {
       is_pm1006 = true;
     }
 
     // TODO: Can we do the check above in here instead to optimize?
+    Serial.println("Reading all bytes");
     if (!is_pm1006) {
       // Start character was found, now read all 32 bytes
       if (serial_dev->available() < 32) {
@@ -120,12 +130,14 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
       if (serial_dev->available() < 20) {
         return false;
       }
+      Serial.println("reading pm1006 all bytes");
       serial_dev->readBytes(buffer, 20);
     }
   } else {
     return false;
   }
 
+  Serial.println("Validating start bytes");
   // Validate start byte is correct for Adafruit PM sensors
   if ((!is_pm1006 && buffer[0] != 0x42)) {
     return false;
@@ -164,8 +176,8 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
   } else {
     // Parse from PM1006
     // NOTE: PM1006 only produces a pm25_env reading!
-    data.pm25_env = (serialRxBuf[5] << 8) | serialRxBuf[6];
-    data.checksum = sum;
+    data->pm25_env = (buffer[5] << 8) | buffer[6];
+    data->checksum = sum;
   }
 
   // success!
