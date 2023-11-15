@@ -9,6 +9,8 @@
  * Arduino platform.  It is designed specifically to work with the
  * Adafruit PM2.5 Air quality sensors: http://www.adafruit.com/products/4632
  *
+ * This library also works with the Cubic PM1006 UART Air Quality Sensor.
+ * 
  * These sensors use I2C or UART to communicate.
  *
  * Adafruit invests time and resources providing this open source code,
@@ -18,7 +20,8 @@
  *
  * @section author Author
  * Written by Ladyada for Adafruit Industries.
- *
+ * Modified by Brent Rubell for Adafruit Industries for use with Cubic PM1006 Air Quality Sensor.
+ * 
  * @section license License
  * BSD license, all text here must be included in any redistribution.
  *
