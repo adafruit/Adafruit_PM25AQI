@@ -86,9 +86,6 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
     if (!serial_dev->available()) {
       return false;
     }
-    // TODO: Test compatibilituy with adafruit pm25 uart sensor
-    // TOOD: Test with adafruit pm25 i2c sensor
-    // TODO: Test with cubic pm1006 sensor
 
     int skipped = 0;
     while ((skipped < 32) && (serial_dev->peek() != 0x42) &&
@@ -103,19 +100,20 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
     // Check for the start character in the stream for both sensors
     if ((serial_dev->peek() != 0x42) && (serial_dev->peek() != 0x16)) {
       serial_dev->read();
-      return false; // We did not find the start character
+      return false;
     }
 
     // Are we using the Cubic PM1006 sensor?
     if (serial_dev->peek() == 0x16) {
       is_pm1006 = true; // Set flag to indicate we are using the PM1006
-      bufLen = 20; // Reduce buffer read length to 20 bytes. Last 12 bytes will
-                   // be ignored.
+      bufLen =
+          20; // Reduce buffer read length to 20 bytes. Last 12 bytes ignored.
     }
 
     // Are there enough bytes to read from?
-    if (serial_dev->available() < bufLen)
+    if (serial_dev->available() < bufLen) {
       return false;
+    }
 
     // Read all available bytes from the serial stream
     serial_dev->readBytes(buffer, bufLen);
@@ -145,11 +143,6 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
     }
   }
 
-  // Validate checksum
-  if ((is_pm1006 && csum != 0) || (!is_pm1006 && sum != data->checksum)) {
-    return false;
-  }
-
   // Since header and checksum are OK, parse data from the buffer
   if (!is_pm1006) {
     // The data comes in endian'd, this solves it so it works on all platforms
@@ -164,6 +157,11 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
     // Cubic PM1006 sensor only produces a pm25_env reading
     data->pm25_env = (buffer[5] << 8) | buffer[6];
     data->checksum = sum;
+  }
+
+  // Validate checksum
+  if ((is_pm1006 && csum != 0) || (!is_pm1006 && sum != data->checksum)) {
+    return false;
   }
 
   // success!
