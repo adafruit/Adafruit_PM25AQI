@@ -85,32 +85,24 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
     if (!serial_dev->available()) {
       return false;
     }
-    int skipped = 0;
     // Find the start character in the stream (0x42 for Adafruit PM sensors,
     // 0x16 for the Cubic PM1006)
-    Serial.println("L91");
-    while ((skipped < 32) && (serial_dev->peek() != 0x42) &&
-           (serial_dev->peek() != 0x16)) {
-      serial_dev->read();
-      Serial.print("peek L94: ");
-      Serial.println(serial_dev->peek());
-      delay(15);
+    // TODO: Put back check for cubic!
+    int skipped = 0;
+    while ((skipped < 20) && (serial_dev->peek() != 0x16)) {
+      Serial.println(serial_dev->read());
       skipped++;
       if (!serial_dev->available()) {
         return false;
       }
     }
+
     // Check for the start character in the stream
-    Serial.println("Checking for start character in stream");
-    if ((serial_dev->peek() != 0x42) || (serial_dev->peek() != 0x16)) {
-      Serial.println("ERROR: Did not find start character in stream!");
-      Serial.println(serial_dev->peek());
+    if ((serial_dev->peek() != 0x16)) {
       serial_dev->read();
-      delay(15);
       return false; // We did not find the start character
     }
     // Are we using the PM1006?
-    Serial.println("Checking for PM1006");
     if (serial_dev->peek() == 0x16) {
       is_pm1006 = true;
     }
@@ -130,7 +122,6 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
       if (serial_dev->available() < 20) {
         return false;
       }
-      Serial.println("reading pm1006 all bytes");
       serial_dev->readBytes(buffer, 20);
     }
   } else {
@@ -154,12 +145,15 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
     bufLen = 20;
   }
 
-  // Calculate the checksum
+  // Calculate checksum
+  // TODO: This is only for PM1006, the PM25 sensor uses int for sum!
+  uint8_t csum = 0;
   for (uint8_t i = 0; i < bufLen; i++) {
-    sum += buffer[i];
+    csum += buffer[i];
   }
+
   // Validate checksum
-  if ((is_pm1006 && sum != 0) || (!is_pm1006 && sum != data->checksum)) {
+  if ((is_pm1006 && csum != 0) || (!is_pm1006 && sum != data->checksum)) {
     return false; // Invalid checksum
   }
 
