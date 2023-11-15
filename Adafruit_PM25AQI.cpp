@@ -69,9 +69,9 @@ bool Adafruit_PM25AQI::begin_UART(Stream *theSerial) {
  */
 bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
   uint8_t buffer[32];
+  size_t bufLen = sizeof(buffer);
   uint16_t sum = 0;
   bool is_pm1006 = false;
-  uint8_t bufLen = 32;
 
   if (!data) {
     return false;
@@ -85,50 +85,46 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
     if (!serial_dev->available()) {
       return false;
     }
+    // TODO: Test compatibilituy with adafruit pm25 uart sensor
+    // TOOD: Test with adafruit pm25 i2c sensor
+    // TODO: Test with cubic pm1006 sensor
+
+    // TODO: go back and re-read all this code
+
     // Find the start character in the stream (0x42 for Adafruit PM sensors,
     // 0x16 for the Cubic PM1006)
     // TODO: Put back check for cubic!
     int skipped = 0;
     while ((skipped < 20) && (serial_dev->peek() != 0x16)) {
-      Serial.println(serial_dev->read());
-      skipped++;
+      serial_dev->read() skipped++;
       if (!serial_dev->available()) {
         return false;
       }
     }
 
-    // Check for the start character in the stream
+    // Check for the start character in the stream for the Cubic PM1006
+    // TODO: put back check for adafruit AQ
     if ((serial_dev->peek() != 0x16)) {
       serial_dev->read();
       return false; // We did not find the start character
     }
     // Are we using the PM1006?
     if (serial_dev->peek() == 0x16) {
-      is_pm1006 = true;
+      is_pm1006 = true; // Set flag
+      bufLen = 20; // Reduce buffer read length to 20 bytes. Last 12 bytes will
+                   // be ignored.
     }
 
-    // TODO: Can we do the check above in here instead to optimize?
-    Serial.println("Reading all bytes");
-    if (!is_pm1006) {
-      // Start character was found, now read all 32 bytes
-      if (serial_dev->available() < 32) {
-        return false;
-      }
-      serial_dev->readBytes(buffer, 32);
-    } else {
-      // Start character was found, now read 20 bytes
-      // Note: PM1006 only requires 20 bytes, but we will ignore the last 12
-      // bytes when parsing
-      if (serial_dev->available() < 20) {
-        return false;
-      }
-      serial_dev->readBytes(buffer, 20);
-    }
+    // Are there enough bytes to read from?
+    if (serial_dev->available() < bufLen)
+      return false;
+    // Start character was found, now read the desired amount of bytes
+    serial_dev->readBytes(buffer, 32);
+
   } else {
     return false;
   }
 
-  Serial.println("Validating start bytes");
   // Validate start byte is correct for Adafruit PM sensors
   if ((!is_pm1006 && buffer[0] != 0x42)) {
     return false;
@@ -140,11 +136,6 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
     return false;
   }
 
-  // TODO: Could we make this better?
-  if (is_pm1006) {
-    bufLen = 20;
-  }
-
   // Calculate checksum
   // TODO: This is only for PM1006, the PM25 sensor uses int for sum!
   uint8_t csum = 0;
@@ -154,7 +145,7 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
 
   // Validate checksum
   if ((is_pm1006 && csum != 0) || (!is_pm1006 && sum != data->checksum)) {
-    return false; // Invalid checksum
+    return false; // Invalid checksum!
   }
 
   // Since header and checksum are OK, parse data from the buffer
@@ -168,8 +159,7 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
     // put it into a nice struct :)
     memcpy((void *)data, (void *)buffer_u16, 30);
   } else {
-    // Parse from PM1006
-    // NOTE: PM1006 only produces a pm25_env reading!
+    // Parse from PM1006. This sensor only produces a pm25_env reading!
     data->pm25_env = (buffer[5] << 8) | buffer[6];
     data->checksum = sum;
   }
