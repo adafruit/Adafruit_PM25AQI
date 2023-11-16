@@ -55,7 +55,7 @@ void loop() {
   
   if (! aqi.read(&data)) {
     Serial.println("Could not read from PM1006 sensor");
-    delay(10000);  // try again in a bit!
+    delay(5000);  // Sample every 5 seconds
     return;
   }
   Serial.println("AQI reading success");
@@ -66,7 +66,6 @@ void loop() {
   Serial.println(F("---------------------------------------"));
   Serial.print(F("PM 1.0: ")); Serial.print(data.pm25_env);
   Serial.println(F("---------------------------------------"));
-  
 
-  delay(1000);
+  delay(20000); // Wait 20 seconds and get another reading from the IKEA Vindriktning
 }
