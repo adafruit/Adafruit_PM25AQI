@@ -131,7 +131,6 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
   // put it into a nice struct :)
   memcpy((void *)data, (void *)buffer_u16, 30);
 
-  data->datasum = sum;
   if (sum != data->checksum) {
     data->checksum_fail = 1;
     return false;

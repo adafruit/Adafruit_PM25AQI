@@ -43,17 +43,9 @@ typedef struct PMSAQIdata {
       particles_100um;     ///< 10.0um Particle Count
   uint16_t unused;         ///< Unused (version + error code)
 
-  // when copy data from int8 array to this struct with memcpy, error_code need
-  // to be defined before version otherwise they are swapped. reason is that
-  // arduino is little endian and memcpy swap the bytes when copy int16 into the
-  // 2 int8s? will manually copy them instead
-  // uint8_t error_code;         ///<
-  // uint8_t version;         ///<
-
   uint16_t checksum; ///< Packet checksum
 
   // verbose infos:
-  uint16_t datasum; ///< the calculated sum of the data in the current packet
   uint8_t startbyte_fail; ///< startbyte check fail?: 1 - fail, 0 - success
   uint8_t checksum_fail;  ///< checksum check fail?: 1 - fail, 0 - success
   uint8_t version;        ///< version number

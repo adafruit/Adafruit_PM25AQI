@@ -42,11 +42,6 @@ void loop() {
   
   if (! aqi.read(&data)) {
     Serial.println("Could not read from AQI");
-
-    //print verbose info
-//     Serial.println("FAIL reading. Error info:");
-//     printInfo(data);
-//     Serial.println();
     
     delay(500);  // try again in a bit!
     return;
@@ -80,23 +75,4 @@ void loop() {
   Serial.println();
 
   delay(1000);
-}
-
-void printInfo(PM25_AQI_Data data)
-{
-  Serial.print(F("startbyte_fail: ")); Serial.println(data.startbyte_fail);
-  Serial.print(F("checksum_fail: ")); Serial.println(data.checksum_fail);
-  Serial.print(F("framelen: ")); Serial.println(data.framelen);
-  Serial.print(F("version: ")); Serial.println(data.version);
-  Serial.print(F("error_code: ")); Serial.println(data.error_code);
-  Serial.print(F("checksum: ")); Serial.println(data.checksum);
-  Serial.print(F("datasum: ")); Serial.println(data.datasum);
-  Serial.println(F("raw data: "));
-  for(int i = 0; i < sizeof(data.raw); i++)
-  {
-    Serial.print(data.raw[i]);
-    Serial.print("\t");
-    if((i+1)%2==0)
-      Serial.println();
-  }
 }
