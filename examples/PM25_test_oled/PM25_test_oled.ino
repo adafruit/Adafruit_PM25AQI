@@ -1,40 +1,43 @@
-/* Test sketch for Adafruit PM2.5 sensor with UART or I2C */
-
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SH110X.h>
 #include "Adafruit_PM25AQI.h"
 
-// If your PM2.5 is UART only, for UNO and others (without hardware serial) 
-// we must use software serial...
-// pin #2 is IN from sensor (TX pin on sensor), leave pin #3 disconnected
-// comment these two lines if using hardware serial
-//#include <SoftwareSerial.h>
-//SoftwareSerial pmSerial(2, 3);
-
 Adafruit_PM25AQI aqi = Adafruit_PM25AQI();
+Adafruit_SH1107 display = Adafruit_SH1107(64, 128, &Wire);
+
 
 void setup() {
   // Wait for serial monitor to open
   Serial.begin(115200);
-  while (!Serial) delay(10);
+  //while (!Serial) delay(10);
 
   Serial.println("Adafruit PMSA003I Air Quality Sensor");
 
-  // Wait three seconds for sensor to boot up!
-  delay(3000);
+  Serial.println("128x64 OLED FeatherWing test");
+  // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
+  display.begin(0x3C, true); // Address 0x3C default
 
-  // If using serial, initialize it and set baudrate before starting!
-  // Uncomment one of the following
-  //Serial1.begin(9600);
-  //pmSerial.begin(9600);
+  Serial.println("OLED begun");
+  
+  display.display();
+  delay(1000);
+  // Clear the buffer.
+  display.clearDisplay();
+  display.display();
 
   // There are 3 options for connectivity!
   if (! aqi.begin_I2C()) {      // connect to the sensor over I2C
-  //if (! aqi.begin_UART(&Serial1)) { // connect to the sensor over hardware serial
-  //if (! aqi.begin_UART(&pmSerial)) { // connect to the sensor over software serial 
     Serial.println("Could not find PM 2.5 sensor!");
     while (1) delay(10);
   }
 
   Serial.println("PM25 found!");
+
+  display.setTextSize(1);
+  display.setRotation(1);
+  display.setTextColor(SH110X_WHITE);
 }
 
 void loop() {
@@ -42,19 +45,20 @@ void loop() {
   
   if (! aqi.read(&data)) {
     Serial.println("Could not read from AQI");
-    
     delay(500);  // try again in a bit!
     return;
   }
   Serial.println("AQI reading success");
 
+  Serial.println();
   Serial.println(F("---------------------------------------"));
   Serial.println(F("Concentration Units (standard)"));
+  Serial.println(F("---------------------------------------"));
   Serial.print(F("PM 1.0: ")); Serial.print(data.pm10_standard);
   Serial.print(F("\t\tPM 2.5: ")); Serial.print(data.pm25_standard);
   Serial.print(F("\t\tPM 10: ")); Serial.println(data.pm100_standard);
-  Serial.println(F("---------------------------------------"));
   Serial.println(F("Concentration Units (environmental)"));
+  Serial.println(F("---------------------------------------"));
   Serial.print(F("PM 1.0: ")); Serial.print(data.pm10_env);
   Serial.print(F("\t\tPM 2.5: ")); Serial.print(data.pm25_env);
   Serial.print(F("\t\tPM 10: ")); Serial.println(data.pm100_env);
@@ -64,15 +68,22 @@ void loop() {
   Serial.print(F("Particles > 1.0um / 0.1L air:")); Serial.println(data.particles_10um);
   Serial.print(F("Particles > 2.5um / 0.1L air:")); Serial.println(data.particles_25um);
   Serial.print(F("Particles > 5.0um / 0.1L air:")); Serial.println(data.particles_50um);
-  Serial.print(F("Particles > 10 um / 0.1L air:")); Serial.println(data.particles_100um);
+  Serial.print(F("Particles > 50 um / 0.1L air:")); Serial.println(data.particles_100um);
   Serial.println(F("---------------------------------------"));
-  Serial.println(F("AQI"));
-  Serial.print(F("PM2.5 AQI US: ")); Serial.print(data.aqi_pm25_us);
-  Serial.print(F("\tPM10  AQI US: ")); Serial.println(data.aqi_pm100_us);
-//  Serial.print(F("PM2.5 AQI China: ")); Serial.print(data.aqi_pm25_china);
-//  Serial.print(F("\tPM10  AQI China: ")); Serial.println(data.aqi_pm100_china);
-  Serial.println(F("---------------------------------------"));
-  Serial.println();
 
-  delay(1000);
+  display.clearDisplay();
+  display.setCursor(0,0);
+  display.print("PM 1.0: "); display.println(data.pm10_env);
+  display.print("PM 2.5: "); display.println(data.pm25_env);
+  display.print("PM 10: "); display.println(data.pm100_env);
+  
+  display.print("Part's >0.3um: "); display.println(data.particles_03um);
+  display.print("Part's >0.5um: "); display.println(data.particles_05um);
+  display.print("Part's >1.0um: "); display.println(data.particles_10um);
+  display.print("Part's >2.5um: "); display.println(data.particles_25um);
+  display.print("Part's >5.0um: "); display.println(data.particles_50um);
+  display.print("Part's >10um: "); display.println(data.particles_100um);
+  display.display(); // actually display all of the above
+
+  delay(500);
 }

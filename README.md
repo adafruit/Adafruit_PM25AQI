@@ -5,6 +5,8 @@ Tested and works great with the Adafruit PM2.5 Air Quality Sensor and Breadboard
 
 [<img src="https://cdn-shop.adafruit.com/1200x900/3686-10.jpg" width="500px">](https://www.adafruit.com/products/3686)
 
+This library also works with the Cubic PM1006 air quality sensor present on the [IKEA VINDSTYRKA](https://www.ikea.com/us/en/p/vindriktning-air-quality-sensor-60515911/). Please use the `pm1006_test.ino` sketch to use this sensor.
+
 Adafruit invests time and resources providing this open source code, please support Adafruit and open-source hardware by purchasing products from Adafruit!
 
 # Installation
