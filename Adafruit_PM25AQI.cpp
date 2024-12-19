@@ -105,14 +105,9 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
     return false;
   }
 
-  memcpy((void *)data->raw, (void *)buffer, 32);
-
   // Check that start byte is correct!
   if (buffer[0] != 0x42 || buffer[1] != 0x4d) {
-    data->startbyte_fail = 1;
     return false;
-  } else {
-    data->startbyte_fail = 0;
   }
 
   // get checksum ready
@@ -132,14 +127,8 @@ bool Adafruit_PM25AQI::read(PM25_AQI_Data *data) {
   memcpy((void *)data, (void *)buffer_u16, 30);
 
   if (sum != data->checksum) {
-    data->checksum_fail = 1;
     return false;
-  } else {
-    data->checksum_fail = 0;
   }
-
-  data->version = buffer[28];
-  data->error_code = buffer[29];
 
   // convert concentration to AQI
   data->aqi_pm25_us = pm25_aqi_us(data->pm25_env);
