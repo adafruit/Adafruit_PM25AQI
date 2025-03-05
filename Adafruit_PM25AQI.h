@@ -33,14 +33,14 @@ class Adafruit_PM25AQI {
 public:
   Adafruit_PM25AQI();
   ~Adafruit_PM25AQI();
-  
-  // Add deprecation warnings
+
   [[deprecated("Please use Adafruit_PM25AQI_PMSA003I directly")]]
-  bool begin_I2C(TwoWire *theWire = &Wire, uint8_t addr = PMSA003I_I2CADDR_DEFAULT);
-  
+  bool begin_I2C(TwoWire *theWire = &Wire,
+                 uint8_t addr = PMSA003I_I2CADDR_DEFAULT);
+
   [[deprecated("Please use appropriate UART driver class directly")]]
   bool begin_UART(Stream *theStream);
-  
+
   bool read(PM25_AQI_Data *data);
 
 private:

@@ -9,7 +9,8 @@ bool Adafruit_PM25AQI_PMSA003I::read(PM25_AQI_Data *data) {
     return false;
   }
 
-  if (!verify_starting_bytes(_buffer) || !verify_checksum(_buffer, _bufferSize)) {
+  if (!verify_starting_bytes(_buffer) ||
+      !verify_checksum(_buffer, _bufferSize)) {
     return false;
   }
 
