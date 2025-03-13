@@ -38,7 +38,9 @@
 /*!
  *  @brief  Instantiates a new PM25AQI class
  */
-Adafruit_PM25AQI::Adafruit_PM25AQI() {}
+Adafruit_PM25AQI::Adafruit_PM25AQI() {
+  driver = nullptr;
+}
 
 Adafruit_PM25AQI::~Adafruit_PM25AQI() {
   if (driver) {
@@ -78,7 +80,7 @@ bool Adafruit_PM25AQI::begin_UART(Stream *SerialStream) {
   uint8_t retries = 0;
   while (retries < 32) {
     for (uint8_t i = 0; i < 32; i++) {
-      int peek_byte = SerialStream->peek()
+      int peek_byte = SerialStream->peek();
       if (SerialStream->available() || peek_byte != -1) {
         if (peek_byte == 0x42) {
           PM25AQI_DEBUG_PRINTLN(

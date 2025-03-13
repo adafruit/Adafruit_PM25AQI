@@ -83,25 +83,23 @@ uint16_t Adafruit_PM25AQI_Base::pm25_aqi_us(float concentration) {
 }
 
 uint16_t Adafruit_PM25AQI_Base::pm100_aqi_us(float concentration) {
-  float c;
-  float AQI;
-  c = concentration;
-  if (c < 0)
+  float AQI = 0;
+  if (concentration < 0)
     AQI = 0;
-  else if (c < 55) {
-    AQI = linear(50, 0, 55, 0, c);
-  } else if (c < 155) {
-    AQI = linear(100, 51, 155, 55, c);
-  } else if (c < 255) {
-    AQI = linear(150, 101, 255, 155, c);
-  } else if (c < 355) {
-    AQI = linear(200, 151, 355, 255, c);
-  } else if (c < 425) {
-    AQI = linear(300, 201, 425, 355, c);
-  } else if (c < 505) {
-    AQI = linear(400, 301, 505, 425, c);
-  } else if (c < 605) {
-    AQI = linear(500, 401, 605, 505, c);
+  else if (concentration < 55) {
+    AQI = linear(50, 0, 55, 0, concentration);
+  } else if (concentration < 155) {
+    AQI = linear(100, 51, 155, 55, concentration);
+  } else if (concentration < 255) {
+    AQI = linear(150, 101, 255, 155, concentration);
+  } else if (concentration < 355) {
+    AQI = linear(200, 151, 355, 255, concentration);
+  } else if (concentration < 425) {
+    AQI = linear(300, 201, 425, 355, concentration);
+  } else if (concentration < 505) {
+    AQI = linear(400, 301, 505, 425, concentration);
+  } else if (concentration < 605) {
+    AQI = linear(500, 401, 605, 505, concentration);
   } else {
     AQI = 99999; //
   }
@@ -109,25 +107,23 @@ uint16_t Adafruit_PM25AQI_Base::pm100_aqi_us(float concentration) {
 }
 
 uint16_t Adafruit_PM25AQI_Base::pm25_aqi_china(float concentration) {
-  float c;
-  float AQI;
-  c = concentration;
-  if (c < 0)
+  float AQI = 0;
+  if (concentration < 0)
     AQI = 0;
-  else if (c <= 35) {
-    AQI = linear(50, 0, 35, 0, c);
-  } else if (c <= 75) {
-    AQI = linear(100, 51, 75, 35, c);
-  } else if (c <= 115) {
-    AQI = linear(150, 101, 115, 75, c);
-  } else if (c <= 150) {
-    AQI = linear(200, 151, 150, 115, c);
-  } else if (c <= 250) {
-    AQI = linear(300, 201, 250, 150, c);
-  } else if (c <= 350) {
-    AQI = linear(400, 301, 350, 250, c);
-  } else if (c <= 500) {
-    AQI = linear(500, 401, 500, 350, c);
+  else if (concentration <= 35) {
+    AQI = linear(50, 0, 35, 0, concentration);
+  } else if (concentration <= 75) {
+    AQI = linear(100, 51, 75, 35, concentration);
+  } else if (concentration <= 115) {
+    AQI = linear(150, 101, 115, 75, concentration);
+  } else if (concentration <= 150) {
+    AQI = linear(200, 151, 150, 115, concentration);
+  } else if (concentration <= 250) {
+    AQI = linear(300, 201, 250, 150, concentration);
+  } else if (concentration <= 350) {
+    AQI = linear(400, 301, 350, 250, concentration);
+  } else if (concentration <= 500) {
+    AQI = linear(500, 401, 500, 350, concentration);
   } else {
     AQI = 99999; //
   }
@@ -135,25 +131,23 @@ uint16_t Adafruit_PM25AQI_Base::pm25_aqi_china(float concentration) {
 }
 
 uint16_t Adafruit_PM25AQI_Base::pm100_aqi_china(float concentration) {
-  float c;
-  float AQI;
-  c = concentration;
-  if (c < 0)
+  float AQI = 0;
+  if (concentration < 0)
     AQI = 0;
-  else if (c <= 50) {
-    AQI = linear(50, 0, 50, 0, c);
-  } else if (c <= 150) {
-    AQI = linear(100, 51, 150, 50, c);
-  } else if (c <= 250) {
-    AQI = linear(150, 101, 250, 150, c);
-  } else if (c <= 350) {
-    AQI = linear(200, 151, 350, 250, c);
-  } else if (c <= 420) {
-    AQI = linear(300, 201, 420, 350, c);
-  } else if (c <= 500) {
-    AQI = linear(400, 301, 500, 420, c);
-  } else if (c <= 600) {
-    AQI = linear(500, 401, 600, 500, c);
+  else if (concentration <= 50) {
+    AQI = linear(50, 0, 50, 0, concentration);
+  } else if (concentration <= 150) {
+    AQI = linear(100, 51, 150, 50, concentration);
+  } else if (concentration <= 250) {
+    AQI = linear(150, 101, 250, 150, concentration);
+  } else if (concentration <= 350) {
+    AQI = linear(200, 151, 350, 250, concentration);
+  } else if (concentration <= 420) {
+    AQI = linear(300, 201, 420, 350, concentration);
+  } else if (concentration <= 500) {
+    AQI = linear(400, 301, 500, 420, concentration);
+  } else if (concentration <= 600) {
+    AQI = linear(500, 401, 600, 500, concentration);
   } else {
     AQI = 99999; //
   }
