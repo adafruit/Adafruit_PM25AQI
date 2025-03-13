@@ -11,7 +11,7 @@ class Adafruit_PM25AQI_I2C_Base : public Adafruit_PM25AQI_Base {
 public:
   virtual ~Adafruit_PM25AQI_I2C_Base() override;
   bool begin_I2C(TwoWire *theWire, uint8_t addr) override;
-  bool begin_UART(Stream *theStream) override { return false; }
+  bool begin_UART(Stream *SerialStream) override { return false; }
 
 protected:
   Adafruit_I2CDevice *i2c_dev = nullptr; ///< The I2C device

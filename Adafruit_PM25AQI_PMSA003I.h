@@ -10,12 +10,7 @@
  */
 class Adafruit_PM25AQI_PMSA003I : public Adafruit_PM25AQI_I2C_Base {
 public:
-  // Adafruit_PM25AQI_PMSA003I();
   virtual bool read(PM25_AQI_Data *data) override;
-
-  // protected:
-  //   static const uint8_t _bufferSize = 32;
-  //   uint8_t _buffer[_bufferSize];
 };
 
 #endif

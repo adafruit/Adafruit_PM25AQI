@@ -19,7 +19,7 @@ bool Adafruit_PM25AQI_UART_PM1006::verify_checksum(uint8_t *buffer,
                                                    size_t bufLen) {
   PM25AQI_DEBUG_PRINTLN("Adafruit_PM25AQI_UART_PM1006::verify_checksum");
   uint8_t sum = 0;
-  for (uint8_t i = 0; i < bufLen; i++) {
+  for (size_t i = 0; i < bufLen; i++) {
     sum += buffer[i];
   }
   return sum == 0;

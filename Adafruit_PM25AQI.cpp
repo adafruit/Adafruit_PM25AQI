@@ -66,11 +66,11 @@ bool Adafruit_PM25AQI::begin_I2C(TwoWire *theWire, uint8_t addr) {
 
 /*!
  *  @brief  Setups the hardware and detects a valid UART PM2.5 sensor
- *  @param  theStream
+ *  @param  SerialStream
  *          Pointer to Stream (HardwareSerial/SoftwareSerial) interface
- *  @return True
+ *  @return True if valid sensor start bytes found, else false
  */
-bool Adafruit_PM25AQI::begin_UART(Stream *theStream) {
+bool Adafruit_PM25AQI::begin_UART(Stream *SerialStream) {
   if (driver) {
     delete driver;
     driver = nullptr;
@@ -78,27 +78,27 @@ bool Adafruit_PM25AQI::begin_UART(Stream *theStream) {
   uint8_t retries = 0;
   while (retries < 32) {
     for (uint8_t i = 0; i < 32; i++) {
-      if (theStream->available() || theStream->peek() != -1) {
-        if (theStream->peek() == 0x42) {
+      int peek_byte = SerialStream->peek()
+      if (SerialStream->available() || peek_byte != -1) {
+        if (peek_byte == 0x42) {
           PM25AQI_DEBUG_PRINTLN(
               "[Adafruit_PM25AQI::begin_UART] Suspected PMS5003");
           driver = new Adafruit_PM25AQI_UART_PMS5003();
           PM25AQI_DEBUG_PRINTLN(
               "[Adafruit_PM25AQI::begin_UART] Trying to begin PMS5003 UART");
-          return driver->begin_UART(theStream);
-          break;
-        } else if (theStream->peek() == 0x16) {
+          return driver->begin_UART(SerialStream);
+        } else if (peek_byte == 0x16) {
           PM25AQI_DEBUG_PRINTLN(
               "[Adafruit_PM25AQI::begin_UART] Suspected PM1006");
           driver = new Adafruit_PM25AQI_UART_PM1006();
           PM25AQI_DEBUG_PRINTLN(
               "[Adafruit_PM25AQI::begin_UART] Trying to begin PM1006 UART");
-          return driver->begin_UART(theStream);
-          break;
+          return driver->begin_UART(SerialStream);
         } else {
           PM25AQI_DEBUG_PRINT("[Adafruit_PM25AQI::begin_UART] Skipping byte: ");
-          PM25AQI_DEBUG_PRINTLN(theStream->peek(), 16);
-          theStream->read();
+          PM25AQI_DEBUG_PRINTLN(peek_byte, 16);
+          // Read the byte to skip and keep going
+          SerialStream->read();
         }
         PM25AQI_DEBUG_PRINTLN("[Adafruit_PM25AQI::begin_UART] Invalid start "
                               "byte, trying the next byte");

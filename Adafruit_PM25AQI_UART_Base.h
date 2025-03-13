@@ -12,7 +12,7 @@ public:
   bool begin_I2C(TwoWire *theWire = &Wire, uint8_t addr = 0x12) override {
     return false;
   }
-  virtual bool begin_UART(Stream *theStream) override;
+  virtual bool begin_UART(Stream *SerialStream) override;
   virtual bool read(PM25_AQI_Data *data) override;
 
 protected:

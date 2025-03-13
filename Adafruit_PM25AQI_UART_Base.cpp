@@ -7,12 +7,12 @@ Adafruit_PM25AQI_UART_Base::~Adafruit_PM25AQI_UART_Base() {
   }
 }
 
-bool Adafruit_PM25AQI_UART_Base::begin_UART(Stream *theStream) {
+bool Adafruit_PM25AQI_UART_Base::begin_UART(Stream *SerialStream) {
   if (serial_dev) {
     delete serial_dev;
     serial_dev = nullptr;
   }
-  serial_dev = theStream;
+  serial_dev = SerialStream;
   return serial_dev != nullptr;
 }
 
@@ -23,7 +23,8 @@ bool Adafruit_PM25AQI_UART_Base::read_uart_data(uint8_t *buffer,
         "NO_DEVICE: No serial device available - unable to read_uart_data");
     return false;
   }
-  if (!serial_dev->available() && (serial_dev->peek() == -1)) {
+  int peek_byte = serial_dev->peek();
+  if (!serial_dev->available() && (peek_byte == -1)) {
     PM25AQI_DEBUG_PRINTLN(
         "NO_DATA: No serial data available - unable to read_uart_data");
     return false;
@@ -31,13 +32,13 @@ bool Adafruit_PM25AQI_UART_Base::read_uart_data(uint8_t *buffer,
 
   // Skip until we find a potential start byte
   int skipped = 0;
-  while ((skipped < 32) && (serial_dev->peek() != 0x42) &&
-         (serial_dev->peek() != 0x16)) {
+  while ((skipped < 32) && (peek_byte != 0x42) && (peek_byte != 0x16)) {
     PM25AQI_DEBUG_PRINT("SKIP: Saw byte ");
-    PM25AQI_DEBUG_PRINTLN(serial_dev->peek(), HEX);
+    PM25AQI_DEBUG_PRINTLN(peek_byte, HEX);
     serial_dev->read();
     skipped++;
-    if (!serial_dev->available() && (serial_dev->peek() == -1)) {
+    peek_byte = serial_dev->peek();
+    if (!serial_dev->available() && (peek_byte == -1)) {
       PM25AQI_DEBUG_PRINT("NO_DATA_SKIP: No serial data available - unable to "
                           "read_uart_data, skipped: ");
       PM25AQI_DEBUG_PRINTLN(skipped - 1);
@@ -63,7 +64,6 @@ bool Adafruit_PM25AQI_UART_Base::read_uart_data(uint8_t *buffer,
     delay(10);
     while (serial_dev->available()) {
       serial_dev->read();
-      yield(); // TODO: Tyeth - Remove and retest
     }
   }
   if (returned_bytes != bufLen) {

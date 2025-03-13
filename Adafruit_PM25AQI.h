@@ -39,13 +39,13 @@ public:
                  uint8_t addr = PMSA003I_I2CADDR_DEFAULT);
 
   [[deprecated("Please use appropriate UART driver class directly")]]
-  bool begin_UART(Stream *theStream);
+  bool begin_UART(Stream *SerialStream);
 
   bool read(PM25_AQI_Data *data);
 
 private:
   Adafruit_PM25AQI_Base *driver = nullptr;
-  // Remove old private members as they're now handled by specific drivers
+  // Removed old private members as they're now handled by specific drivers
 };
 
 #endif

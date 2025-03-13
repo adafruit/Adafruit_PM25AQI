@@ -58,9 +58,8 @@ void Adafruit_PM25AQI_Base::decode_data(uint8_t *buffer, PM25_AQI_Data *data) {
 }
 
 uint16_t Adafruit_PM25AQI_Base::pm25_aqi_us(float concentration) {
-  float c;
-  float AQI;
-  c = (floor(10 * concentration)) / 10;
+  float AQI = 0;
+  float c = (floor(10 * concentration)) / 10;
   if (c < 0)
     AQI = 0;
   else if (c >= 0 && c < 12.1f) {
@@ -164,9 +163,6 @@ uint16_t Adafruit_PM25AQI_Base::pm100_aqi_china(float concentration) {
 float Adafruit_PM25AQI_Base::linear(uint16_t aqi_high, uint16_t aqi_low,
                                     float conc_high, float conc_low,
                                     float concentration) {
-  float f;
-  f = ((concentration - conc_low) / (conc_high - conc_low)) *
-          (aqi_high - aqi_low) +
-      aqi_low;
-  return f;
+  return ((concentration - conc_low) / (conc_high - conc_low)) *
+          (aqi_high - aqi_low) + aqi_low;
 }

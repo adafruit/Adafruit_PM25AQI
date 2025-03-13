@@ -4,7 +4,7 @@
 #include "Arduino.h"
 #include <Adafruit_I2CDevice.h>
 
-#if 1
+#if 0
 #define PM25AQI_DEBUG_PRINT(...)                                               \
   Serial.print(__VA_ARGS__);                                                   \
   Serial.flush()
@@ -63,11 +63,11 @@ public:
 
   /*!
    *  @brief  Setups the hardware and detects a valid UART PM2.5 sensor
-   *  @param  theStream
+   *  @param  SerialStream
    *          Pointer to Stream (HardwareSerial/SoftwareSerial) interface
    *  @return True
    */
-  virtual bool begin_UART(Stream *theStream) = 0;
+  virtual bool begin_UART(Stream *SerialStream) = 0;
 
   /*!
    *  @brief  Read the sensor data into the data struct
