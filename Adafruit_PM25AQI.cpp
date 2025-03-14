@@ -38,9 +38,7 @@
 /*!
  *  @brief  Instantiates a new PM25AQI class
  */
-Adafruit_PM25AQI::Adafruit_PM25AQI() {
-  driver = nullptr;
-}
+Adafruit_PM25AQI::Adafruit_PM25AQI() { driver = nullptr; }
 
 Adafruit_PM25AQI::~Adafruit_PM25AQI() {
   if (driver) {

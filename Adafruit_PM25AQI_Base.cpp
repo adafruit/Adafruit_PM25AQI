@@ -158,5 +158,6 @@ float Adafruit_PM25AQI_Base::linear(uint16_t aqi_high, uint16_t aqi_low,
                                     float conc_high, float conc_low,
                                     float concentration) {
   return ((concentration - conc_low) / (conc_high - conc_low)) *
-          (aqi_high - aqi_low) + aqi_low;
+             (aqi_high - aqi_low) +
+         aqi_low;
 }
