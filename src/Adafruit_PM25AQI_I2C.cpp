@@ -4,7 +4,7 @@
  *  @brief  Ctor for the Adafruit_PM25AQI_I2C class.
  */
 Adafruit_PM25AQI_I2C::Adafruit_PM25AQI_I2C() {
-  // TODO
+  // Nothing additional to initialize
 }
 
 /*!
@@ -38,17 +38,23 @@ bool Adafruit_PM25AQI_I2C::begin(TwoWire *theWire, uint8_t i2c_addr) {
   return true;
 }
 
+/*!
+ *  @brief  Attempts to read PM2.5 data from the AQ sensor.
+ *  @param  data
+ *          Pointer to PM25_AQI_Data struct.
+ *  @return True on successful read, False if timed out or bad data.
+ */
 bool Adafruit_PM25AQI_I2C::read(PM25_AQI_Data *data) {
   uint8_t buffer[32];
   size_t bufLen = sizeof(buffer);
   uint16_t sum = 0;
 
   if (!data && _i2c_dev == nullptr) {
-    return false;
+    return false; // Objects improperly initialized, early-out
   }
 
   if (!_i2c_dev->read(buffer, 32)) {
-    return false;
+    return false; // I2C read failed, early-out
   }
 
   // Validate start byte is correct if using Adafruit PM sensors
@@ -78,7 +84,7 @@ bool Adafruit_PM25AQI_I2C::read(PM25_AQI_Data *data) {
   }
 
   // convert raw concentrations to AQI
-  ConvertAQIData(data);
+  this->ConvertAQIData(data);
 
   // success!
   return true;

@@ -1,5 +1,5 @@
 /*!
- * @file ADAFRUIT_PM25AQI_I2C.h
+ * @file Adafruit_PM25AQI_UART.h
  *
  * This is the documentation for Adafruit's PM25 AQI driver for the
  * Arduino platform.  It is designed specifically to work with the
@@ -17,28 +17,28 @@
  *
  */
 
-#ifndef ADAFRUIT_PM25AQI_I2C_H
-#define ADAFRUIT_PM25AQI_I2C_H
+#ifndef ADAFRUIT_PM25AQI_UART_H
+#define ADAFRUIT_PM25AQI_UART_H
+#include "Adafruit_GenericDevice.h"
 #include "Adafruit_PM25AQI.h"
-#include <Adafruit_I2CDevice.h>
 
-#define PMSA003I_DEFAULT_ADDRESS 0x12 ///< PMSA003I has only one I2C address
+#define ADAFRUIT_PM_START_BYTE 0x42 ///< Start byte for Adafruit's PM25 sensors
+#define PMSA003I_START_BYTE 0x16    ///< Start byte for Cubic PM1006
 
 /*!
- *  @brief  Class that stores state and functions for interacting with
- *          PM2.5 Air Quality Sensor
+ *  @brief  UART interface for the Adafruit PM2.5 Air Quality Sensor
+            and Plantower PMSA003I Sensor.
  */
-class Adafruit_PM25AQI_I2C : public Adafruit_PM25AQI {
+class Adafruit_PM25AQI_UART : public Adafruit_PM25AQI {
 public:
-  Adafruit_PM25AQI_I2C();
-  ~Adafruit_PM25AQI_I2C();
-  bool begin(TwoWire *theWire = &Wire,
-             uint8_t i2c_addr = PMSA003I_DEFAULT_ADDRESS);
+  Adafruit_PM25AQI_UART();
+  ~Adafruit_PM25AQI_UART();
+  bool begin(Stream *theSerial); // TODO: What should this take in?
   virtual bool read(PM25_AQI_Data *data) override;
 
 private:
-  Adafruit_I2CDevice *_i2c_dev = nullptr;
+  Stream *_serial_dev; // Underlying Stream instance (HardwareSerial, etc)
   uint8_t _readbuffer[32];
 };
 
-#endif // ADAFRUIT_PM25AQI_I2C_H
+#endif // ADAFRUIT_PM25AQI_UART_H

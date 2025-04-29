@@ -19,15 +19,10 @@
 
 #ifndef ADAFRUIT_PM25AQI_H
 #define ADAFRUIT_PM25AQI_H
-
 #include "Adafruit_AQIUtils.h"
+#include "Adafruit_PM25AQI_I2C.h"
+#include "Adafruit_PM25AQI_UART.h"
 #include "Arduino.h"
-#include <math.h>
-
-#include <Adafruit_I2CDevice.h>
-
-// the i2c address
-#define PMSA003I_I2CADDR_DEFAULT 0x12 ///< PMSA003I has only one I2C address
 
 /**! Structure holding Plantower's standard packet **/
 typedef struct PMSAQIdata {
@@ -56,24 +51,24 @@ typedef struct PMSAQIdata {
 
 } PM25_AQI_Data;
 
-/*!
- *  @brief  Class that stores state and functions for interacting with
- *          PM2.5 Air Quality Sensor
- */
+class Adafruit_PM25AQI_I2C;  ///< forward declaration
+class Adafruit_PM25AQI_UART; ///< forward declaration
+
 class Adafruit_PM25AQI {
 public:
   Adafruit_PM25AQI();
-  ~Adafruit_PM25AQI();
+  virtual ~Adafruit_PM25AQI();
   virtual bool begin() = 0;
   void ConvertAQIData(PM25_AQI_Data *data);
-  ;
   // These are backwards compatible with the "old" library
   bool begin_I2C(TwoWire *theWire = &Wire);
   bool begin_UART(Stream *theStream);
-  bool read(PM25_AQI_Data *data);
+  virtual bool read(PM25_AQI_Data *data);
 
-private:
+protected:
   uint8_t _readbuffer[32];
+  Adafruit_PM25AQI_I2C *_pm25_i2c = nullptr;
+  Adafruit_PM25AQI_UART *_pm25_uart = nullptr;
   Adafruit_AQIUtils *_aqi_utils = nullptr;
 };
 

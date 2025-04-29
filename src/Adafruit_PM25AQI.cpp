@@ -36,7 +36,20 @@
 Adafruit_PM25AQI::Adafruit_PM25AQI() { _aqi_utils = new Adafruit_AQIUtils(); }
 
 Adafruit_PM25AQI::~Adafruit_PM25AQI() {
-  // TODO
+  if (_aqi_utils) {
+    delete _aqi_utils;
+    _aqi_utils = nullptr;
+  }
+
+  if (_pm25_i2c != nullptr) {
+    delete _pm25_i2c;
+    _pm25_i2c = nullptr;
+  }
+
+  if (_pm25_uart != nullptr) {
+    delete _pm25_uart;
+    _pm25_uart = nullptr;
+  }
 }
 
 /*!
@@ -46,10 +59,10 @@ Adafruit_PM25AQI::~Adafruit_PM25AQI() {
  *          Pointer to PM25_AQI_Data struct.
  */
 void Adafruit_PM25AQI::ConvertAQIData(PM25_AQI_Data *data) {
-  data->aqi_pm25_us = pm25_aqi_us(data->pm25_env);
-  data->aqi_pm25_china = pm25_aqi_china(data->pm25_env);
-  data->aqi_pm100_us = pm100_aqi_us(data->pm100_env);
-  data->aqi_pm100_china = pm100_aqi_china(data->pm100_env);
+  data->aqi_pm25_us = _aqi_utils->pm25_aqi_us(data->pm25_env);
+  data->aqi_pm25_china = _aqi_utils->pm25_aqi_china(data->pm25_env);
+  data->aqi_pm100_us = _aqi_utils->pm100_aqi_us(data->pm100_env);
+  data->aqi_pm100_china = _aqi_utils->pm100_aqi_china(data->pm100_env);
 }
 
 /*!
@@ -59,15 +72,16 @@ void Adafruit_PM25AQI::ConvertAQIData(PM25_AQI_Data *data) {
  *  @return True if PMSA003I found on I2C, False if something went wrong!
  */
 bool Adafruit_PM25AQI::begin_I2C(TwoWire *theWire) {
-  if (!i2c_dev) {
-    i2c_dev = new Adafruit_I2CDevice(PMSA003I_I2CADDR_DEFAULT, theWire);
-  }
-
-  if (!i2c_dev->begin()) {
+  if (_pm25_i2c != nullptr) {
     return false;
   }
 
-  return true;
+  _pm25_i2c = new Adafruit_PM25AQI_I2C();
+  if (!_pm25_i2c) {
+    return false;
+  }
+  // Attempt to initialize the I2C PM2.5 sensor
+  return _pm25_i2c->begin(theWire);
 }
 
 /*!
@@ -77,8 +91,7 @@ bool Adafruit_PM25AQI::begin_I2C(TwoWire *theWire) {
  *  @return True
  */
 bool Adafruit_PM25AQI::begin_UART(Stream *theSerial) {
-  serial_dev = theSerial;
-
+  // TODO: Rewrite to use PM25AQI UART and be backwards compatible
   return true;
 }
 

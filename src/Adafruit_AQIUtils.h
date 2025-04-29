@@ -14,9 +14,10 @@
  * BSD license, all text here must be included in any redistribution.
  *
  */
-#ifndef ADAFRUIT_AQIUTILS_CPP
-#define ADAFRUIT_AQIUTILS_CPP
-#include "Adafruit_PM25AQI.h"
+#ifndef ADAFRUIT_AQIUTILS_H
+#define ADAFRUIT_AQIUTILS_H
+#include "Arduino.h"
+#include <math.h>
 
 #define ERR_AQI_OUT_OF_RANGE 99999 ///< AQI out of range
 
