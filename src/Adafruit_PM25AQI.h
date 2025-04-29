@@ -63,7 +63,10 @@ typedef struct PMSAQIdata {
 class Adafruit_PM25AQI {
 public:
   Adafruit_PM25AQI();
+  ~Adafruit_PM25AQI();
   virtual bool begin() = 0;
+  void ConvertAQIData(PM25_AQI_Data *data);
+  ;
   // These are backwards compatible with the "old" library
   bool begin_I2C(TwoWire *theWire = &Wire);
   bool begin_UART(Stream *theStream);
@@ -71,6 +74,7 @@ public:
 
 private:
   uint8_t _readbuffer[32];
+  Adafruit_AQIUtils *_aqi_utils = nullptr;
 };
 
 #endif

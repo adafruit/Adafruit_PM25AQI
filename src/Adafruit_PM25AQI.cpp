@@ -33,7 +33,24 @@
 /*!
  *  @brief  Instantiates a new PM25AQI class
  */
-Adafruit_PM25AQI::Adafruit_PM25AQI() {}
+Adafruit_PM25AQI::Adafruit_PM25AQI() { _aqi_utils = new Adafruit_AQIUtils(); }
+
+Adafruit_PM25AQI::~Adafruit_PM25AQI() {
+  // TODO
+}
+
+/*!
+ *  @brief  Converts the PM2.5 raw data to country-specific AQI values
+ *          and fills the PM25_AQI_Data struct with the results.
+ *  @param  data
+ *          Pointer to PM25_AQI_Data struct.
+ */
+void Adafruit_PM25AQI::ConvertAQIData(PM25_AQI_Data *data) {
+  data->aqi_pm25_us = pm25_aqi_us(data->pm25_env);
+  data->aqi_pm25_china = pm25_aqi_china(data->pm25_env);
+  data->aqi_pm100_us = pm100_aqi_us(data->pm100_env);
+  data->aqi_pm100_china = pm100_aqi_china(data->pm100_env);
+}
 
 /*!
  *  @brief  Setups the hardware and detects a valid PMSA003I. Initializes I2C.

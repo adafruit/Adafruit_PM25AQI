@@ -34,6 +34,7 @@ public:
   ~Adafruit_PM25AQI_I2C();
   bool begin(TwoWire *theWire = &Wire,
              uint8_t i2c_addr = PMSA003I_DEFAULT_ADDRESS);
+  bool read(PM25_AQI_Data *data) override;
 
 private:
   Adafruit_I2CDevice *_i2c_dev = nullptr;
