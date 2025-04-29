@@ -16,8 +16,7 @@
  */
 #ifndef ADAFRUIT_AQIUTILS_CPP
 #define ADAFRUIT_AQIUTILS_CPP
-#include "Arduino.h"
-#include <math.h>
+#include "Adafruit_PM25AQI.h"
 
 #define ERR_AQI_OUT_OF_RANGE 99999 ///< AQI out of range
 

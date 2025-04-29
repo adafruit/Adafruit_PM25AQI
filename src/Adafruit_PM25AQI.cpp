@@ -29,7 +29,6 @@
  */
 
 #include "Adafruit_PM25AQI.h"
-#include <math.h>
 
 /*!
  *  @brief  Instantiates a new PM25AQI class

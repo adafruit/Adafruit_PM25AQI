@@ -20,7 +20,10 @@
 #ifndef ADAFRUIT_PM25AQI_H
 #define ADAFRUIT_PM25AQI_H
 
+#include "Adafruit_AQIUtils.h"
 #include "Arduino.h"
+#include <math.h>
+
 #include <Adafruit_I2CDevice.h>
 
 // the i2c address
@@ -60,20 +63,13 @@ typedef struct PMSAQIdata {
 class Adafruit_PM25AQI {
 public:
   Adafruit_PM25AQI();
+  virtual bool begin() = 0;
+  // These are backwards compatible with the "old" library
   bool begin_I2C(TwoWire *theWire = &Wire);
   bool begin_UART(Stream *theStream);
   bool read(PM25_AQI_Data *data);
 
-  uint16_t pm25_aqi_us(float concentration);
-  uint16_t pm25_aqi_china(float concentration);
-  uint16_t pm100_aqi_us(float concentration);
-  uint16_t pm100_aqi_china(float concentration);
-  float linear(uint16_t aqi_high, uint16_t aqi_low, float conc_high,
-               float conc_low, float concentration);
-
 private:
-  Adafruit_I2CDevice *i2c_dev = NULL;
-  Stream *serial_dev = NULL;
   uint8_t _readbuffer[32];
 };
 
