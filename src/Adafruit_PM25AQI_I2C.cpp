@@ -1,4 +1,5 @@
 #include "Adafruit_PM25AQI_I2C.h"
+#include "Adafruit_PM25AQI.h"
 
 /*!
  *  @brief  Ctor for the Adafruit_PM25AQI_I2C class.

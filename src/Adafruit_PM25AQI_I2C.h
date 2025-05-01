@@ -1,5 +1,5 @@
 /*!
- * @file ADAFRUIT_PM25AQI_I2C.h
+ * @file Adafruit_PM25AQI_I2C.h
  *
  * This is the documentation for Adafruit's PM25 AQI driver for the
  * Arduino platform.  It is designed specifically to work with the
@@ -34,7 +34,7 @@ public:
   ~Adafruit_PM25AQI_I2C();
   bool begin(TwoWire *theWire = &Wire,
              uint8_t i2c_addr = PMSA003I_DEFAULT_ADDRESS);
-  virtual bool read(PM25_AQI_Data *data) override;
+  virtual bool read(PM25_AQI_Data *data);
 
 private:
   Adafruit_I2CDevice *_i2c_dev = nullptr;

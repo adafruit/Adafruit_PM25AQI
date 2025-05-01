@@ -20,9 +20,8 @@
 #ifndef ADAFRUIT_PM25AQI_H
 #define ADAFRUIT_PM25AQI_H
 #include "Adafruit_AQIUtils.h"
-#include "Adafruit_PM25AQI_I2C.h"
-#include "Adafruit_PM25AQI_UART.h"
 #include "Arduino.h"
+#include <Wire.h>
 
 /**! Structure holding Plantower's standard packet **/
 typedef struct PMSAQIdata {
@@ -51,14 +50,15 @@ typedef struct PMSAQIdata {
 
 } PM25_AQI_Data;
 
-class Adafruit_PM25AQI_I2C;  ///< forward declaration
-class Adafruit_PM25AQI_UART; ///< forward declaration
+// Forward declarations for circular dependency resolution
+class Adafruit_PM25AQI_I2C;
+class Adafruit_PM25AQI_UART;
 
 class Adafruit_PM25AQI {
 public:
   Adafruit_PM25AQI();
   virtual ~Adafruit_PM25AQI();
-  virtual bool begin() = 0;
+  virtual bool begin();
   void ConvertAQIData(PM25_AQI_Data *data);
   // These are backwards compatible with the "old" library
   bool begin_I2C(TwoWire *theWire = &Wire);

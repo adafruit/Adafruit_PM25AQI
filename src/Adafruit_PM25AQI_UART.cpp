@@ -15,6 +15,7 @@
  *
  */
 #include "Adafruit_PM25AQI_UART.h"
+#include "Adafruit_PM25AQI.h"
 
 /*!
  *  @brief  Creates a new UARTDevice object.
@@ -70,6 +71,19 @@ int UARTDevice::available() {
     return _serial_dev->available();
   }
   return 0;
+}
+
+/*!
+ *  @brief  Reads the next byte (character) from the serial port and removes it
+ * from the internal serial buffer.
+ *  @return The first byte of incoming serial data available (or -1 if no data
+ * is available).
+ */
+int UARTDevice::read() {
+  if (_serial_dev != nullptr) {
+    return _serial_dev->read();
+  }
+  return -1;
 }
 
 /*!
@@ -181,6 +195,7 @@ bool Adafruit_PM25AQI_UART::read(PM25_AQI_Data *data) {
 
   // Check for the start character in the stream for both sensors
   if ((_uart_dev->peek() != 0x42) && (_uart_dev->peek() != 0x16)) {
+    uint8_t dummy;
     _uart_dev->read();
     return false;
   }
@@ -198,7 +213,7 @@ bool Adafruit_PM25AQI_UART::read(PM25_AQI_Data *data) {
   }
 
   // Read all available bytes from the serial stream
-  _uart_dev->readBytes(buffer, bufLen);
+  _uart_dev->getGenericDevice()->read(buffer, bufLen);
 
   // Validate start byte is correct if using Adafruit PM sensors
   if ((!is_pm1006 && (buffer[0] != 0x42 || buffer[1] != 0x4d))) {

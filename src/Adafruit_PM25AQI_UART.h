@@ -32,8 +32,10 @@ public:
   bool CreateDevice();
   int peek();
   int available();
+  int read();
   static bool uart_write(void *thiz, const uint8_t *buffer, size_t len);
   static bool uart_read(void *thiz, uint8_t *buffer, size_t len);
+  Adafruit_GenericDevice *getGenericDevice() { return _generic_dev; }
 
 private:
   Adafruit_GenericDevice *_generic_dev = nullptr;
@@ -53,7 +55,7 @@ public:
   // TODO: WE COULD ALSO BREAK OUT THE CLASS INTO ADAFRUIT_PM25AQI_UART_CUBIC
   // AND ADAFRUIT_PM25AQI_UART_ADAFRUIT or we have a begin_UART(is_cubic) or
   // something to set it up properly?
-  virtual bool read(PM25_AQI_Data *data) override;
+  virtual bool read(PM25_AQI_Data *data);
 
 private:
   Stream *_serial_dev = nullptr;
