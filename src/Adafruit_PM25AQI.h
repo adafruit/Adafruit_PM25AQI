@@ -50,9 +50,8 @@ typedef struct PMSAQIdata {
 
 } PM25_AQI_Data;
 
-// Forward declarations for circular dependency resolution
-class Adafruit_PM25AQI_I2C;
-class Adafruit_PM25AQI_UART;
+class Adafruit_PM25AQI_I2C;  ///< Forward declaration
+class Adafruit_PM25AQI_UART; ///< Forward declaration
 
 class Adafruit_PM25AQI {
 public:
@@ -62,7 +61,7 @@ public:
   void ConvertAQIData(PM25_AQI_Data *data);
   // These are backwards compatible with the "old" library
   bool begin_I2C(TwoWire *theWire = &Wire);
-  bool begin_UART(Stream *theStream);
+  bool begin_UART(Stream *theStream, bool is_pm1006 = false);
   // TODO: Implement
   // bool begin_UART_Cubic(Stream *theStream);
   // bool begin_UART_PM25(Stream *theStream);

@@ -99,9 +99,11 @@ bool Adafruit_PM25AQI::begin_I2C(TwoWire *theWire) {
  *  @brief  Setups the hardware and detects a valid UART PM2.5
  *  @param  theSerial
  *          Pointer to Stream (HardwareSerial/SoftwareSerial) interface
+ *  @param  is_pm1006
+ *         True the sensor is a Cubic PM1006, False otherwise.
  *  @return True
  */
-bool Adafruit_PM25AQI::begin_UART(Stream *theSerial) {
+bool Adafruit_PM25AQI::begin_UART(Stream *theSerial, bool is_pm1006) {
   if (_pm25_uart != nullptr) {
     return false;
   }

@@ -48,19 +48,18 @@ private:
  */
 class Adafruit_PM25AQI_UART : public Adafruit_PM25AQI {
 public:
-  Adafruit_PM25AQI_UART();
+  Adafruit_PM25AQI_UART(bool is_pm1006 = false);
   ~Adafruit_PM25AQI_UART();
-  bool begin(Stream *theSerial); // TODO: What should this take in?
-  // TODO: MAYBE BREAK OUT READ INTO READ_CUBIC OR READ_PM
-  // TODO: WE COULD ALSO BREAK OUT THE CLASS INTO ADAFRUIT_PM25AQI_UART_CUBIC
-  // AND ADAFRUIT_PM25AQI_UART_ADAFRUIT or we have a begin_UART(is_cubic) or
-  // something to set it up properly?
+  bool begin(Stream *theSerial);
   virtual bool read(PM25_AQI_Data *data);
 
 private:
+  bool read_PM25(PM25_AQI_Data *data);
+  bool read_PM1006(PM25_AQI_Data *data);
   Stream *_serial_dev = nullptr;
   UARTDevice *_uart_dev = nullptr;
   uint8_t _readbuffer[32];
+  bool _is_pm1006;
 };
 
 #endif // ADAFRUIT_PM25AQI_UART_H

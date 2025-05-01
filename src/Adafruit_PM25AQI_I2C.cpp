@@ -5,7 +5,7 @@
  *  @brief  Ctor for the Adafruit_PM25AQI_I2C class.
  */
 Adafruit_PM25AQI_I2C::Adafruit_PM25AQI_I2C() {
-  // Nothing additional to initialize
+  // Nothing to initialize
 }
 
 /*!

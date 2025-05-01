@@ -132,8 +132,8 @@ bool UARTDevice::uart_read(void *thiz, uint8_t *buffer, size_t len) {
 /*!
  *  @brief  Ctor for the Adafruit_PM25AQI_UART class.
  */
-Adafruit_PM25AQI_UART::Adafruit_PM25AQI_UART() {
-  // Nothing additional to initialize
+Adafruit_PM25AQI_UART::Adafruit_PM25AQI_UART(bool is_pm1006) {
+  _is_pm1006 = is_pm1006;
 }
 
 /*!
@@ -160,32 +160,25 @@ bool Adafruit_PM25AQI_UART::begin(Stream *theSerial) {
 }
 
 /*!
- *  @brief  Attempts to read PM2.5 data from the AQ sensor.
+ *  @brief  Attempts to read PM2.5 data from an Adafruit AQ sensor.
  *  @param  data
  *          Pointer to PM25_AQI_Data struct.
  *  @return True on successful read, False if timed out or bad data.
  */
-bool Adafruit_PM25AQI_UART::read(PM25_AQI_Data *data) {
+bool Adafruit_PM25AQI_UART::read_PM25(PM25_AQI_Data *data) {
   uint8_t buffer[32];
   size_t bufLen = sizeof(buffer);
   uint16_t sum = 0;
   uint8_t csum = 0;
-  bool is_pm1006 = false;
 
-  if (!data) {
+  if (!data || !_uart_dev)
     return false;
-  }
 
-  if (!_uart_dev)
-    return false; // not initialized
-
-  if (!_uart_dev->available()) {
+  if (!_uart_dev->available())
     return false;
-  }
 
   int skipped = 0;
-  while ((skipped < 32) && (_uart_dev->peek() != 0x42) &&
-         (_uart_dev->peek() != 0x16)) {
+  while ((skipped < 32) && (_uart_dev->peek() != 0x42)) {
     _uart_dev->read();
     skipped++;
     if (!_uart_dev->available()) {
@@ -193,74 +186,126 @@ bool Adafruit_PM25AQI_UART::read(PM25_AQI_Data *data) {
     }
   }
 
-  // Check for the start character in the stream for both sensors
-  if ((_uart_dev->peek() != 0x42) && (_uart_dev->peek() != 0x16)) {
-    uint8_t dummy;
+  // Check for the start character in the stream
+  if ((_uart_dev->peek() != 0x42)) {
     _uart_dev->read();
     return false;
   }
 
-  // Are we using the Cubic PM1006 sensor?
-  if (_uart_dev->peek() == 0x16) {
-    is_pm1006 = true; // Set flag to indicate we are using the PM1006
-    bufLen =
-        20; // Reduce buffer read length to 20 bytes. Last 12 bytes ignored.
-  }
-
   // Are there enough bytes to read from?
-  if (_uart_dev->available() < bufLen) {
+  if (_uart_dev->available() < bufLen)
     return false;
-  }
 
   // Read all available bytes from the serial stream
   _uart_dev->getGenericDevice()->read(buffer, bufLen);
 
   // Validate start byte is correct if using Adafruit PM sensors
-  if ((!is_pm1006 && (buffer[0] != 0x42 || buffer[1] != 0x4d))) {
+  if (buffer[0] != 0x42 || buffer[1] != 0x4d)
     return false;
-  }
-
-  // Validate start header is correct if using Cubic PM1006 sensor
-  if (is_pm1006 &&
-      (buffer[0] != 0x16 || buffer[1] != 0x11 || buffer[2] != 0x0B)) {
-    return false;
-  }
 
   // Calculate checksum
-  if (!is_pm1006) {
-    for (uint8_t i = 0; i < 30; i++) {
-      sum += buffer[i];
-    }
-  } else {
-    for (uint8_t i = 0; i < bufLen; i++) {
-      csum += buffer[i];
-    }
+  for (uint8_t i = 0; i < 30; i++) {
+    sum += buffer[i];
   }
 
   // Since header and checksum are OK, parse data from the buffer
-  if (!is_pm1006) {
-    // The data comes in endian'd, this solves it so it works on all platforms
-    uint16_t buffer_u16[15];
-    for (uint8_t i = 0; i < 15; i++) {
-      buffer_u16[i] = buffer[2 + i * 2 + 1];
-      buffer_u16[i] += (buffer[2 + i * 2] << 8);
-    }
-    // put it into a nice struct :)
-    memcpy((void *)data, (void *)buffer_u16, 30);
-  } else {
-    // Cubic PM1006 sensor only produces a pm25_env reading
-    data->pm25_env = (buffer[5] << 8) | buffer[6];
-    data->checksum = sum;
+  // The data comes in endian'd, this solves it so it works on all platforms
+  uint16_t buffer_u16[15];
+  for (uint8_t i = 0; i < 15; i++) {
+    buffer_u16[i] = buffer[2 + i * 2 + 1];
+    buffer_u16[i] += (buffer[2 + i * 2] << 8);
   }
+  // put it into a nice struct :)
+  memcpy((void *)data, (void *)buffer_u16, 30);
 
   // Validate checksum
-  if ((is_pm1006 && csum != 0) || (!is_pm1006 && sum != data->checksum)) {
+  if (sum != data->checksum)
     return false;
-  }
 
   // convert raw concentrations to AQI using parent class method
   this->ConvertAQIData(data);
 
   // success!
   return true;
+}
+
+/*!
+ *  @brief  Attempts to read PM2.5 data from the Cubic PM1006 sensor.
+ *  @param  data
+ *          Pointer to PM25_AQI_Data struct.
+ *  @return True on successful read, False if timed out or bad data.
+ */
+bool Adafruit_PM25AQI_UART::read_PM1006(PM25_AQI_Data *data) {
+  uint8_t buffer[20];
+  size_t bufLen = 20;
+  uint16_t sum = 0;
+  uint8_t csum = 0;
+
+  if (!data || !_uart_dev)
+    return false;
+
+  if (!_uart_dev->available())
+    return false;
+
+  int skipped = 0;
+  while ((skipped < 32) && (_uart_dev->peek() != 0x16)) {
+    _uart_dev->read();
+    skipped++;
+    if (!_uart_dev->available()) {
+      return false;
+    }
+  }
+
+  // Check for the start character in the stream
+  if ((_uart_dev->peek() != 0x42)) {
+    _uart_dev->read();
+    return false;
+  }
+
+  // Are there enough bytes to read from?
+  if (_uart_dev->available() < bufLen)
+    return false;
+
+  // Read all available bytes from the serial stream
+  _uart_dev->getGenericDevice()->read(buffer, bufLen);
+
+  // Validate start header is correct if using Cubic PM1006 sensor
+  if (buffer[0] != 0x16 || buffer[1] != 0x11 || buffer[2] != 0x0B) {
+    return false;
+  }
+
+  // Calculate checksum
+  for (uint8_t i = 0; i < bufLen; i++) {
+    csum += buffer[i];
+  }
+
+  // Since header and checksum are OK, parse data from the buffer
+  // (Cubic PM1006 sensor only produces a pm25_env reading)
+  data->pm25_env = (buffer[5] << 8) | buffer[6];
+  data->checksum = sum;
+
+  // Validate checksum
+  if (csum != 0)
+    return false;
+
+  // convert raw concentrations to AQI using parent class method
+  this->ConvertAQIData(data);
+
+  // success!
+  return true;
+}
+
+/*!
+ *  @brief  Attempts to read PM2.5 data from the AQ sensor.
+ *  @param  data
+ *          Pointer to PM25_AQI_Data struct.
+ *  @return True on successful read, False if timed out or bad data.
+ */
+bool Adafruit_PM25AQI_UART::read(PM25_AQI_Data *data) {
+  // If we're using a Cubic PM1006 sensor, read from it
+  if (_is_pm1006)
+    return read_PM1006(data);
+
+  // Otherwise, we're using an Adafruit PM25 sensor
+  return read_PM25(data);
 }
