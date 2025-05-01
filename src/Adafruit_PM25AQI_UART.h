@@ -30,14 +30,14 @@ public:
   UARTDevice(Stream *serial);
   ~UARTDevice();
   bool CreateDevice();
-  static bool uart_write(void *thiz, const uint8_t *buffer, size_t len);
-  static bool uart_read(void *thiz, uint8_t *buffer, size_t len);
   int peek();
   int available();
+  static bool uart_write(void *thiz, const uint8_t *buffer, size_t len);
+  static bool uart_read(void *thiz, uint8_t *buffer, size_t len);
 
 private:
   Adafruit_GenericDevice *_generic_dev = nullptr;
-  Stream *_serial = nullptr;
+  Stream *_serial_dev = nullptr;
 };
 
 /*!

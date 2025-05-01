@@ -91,8 +91,11 @@ bool Adafruit_PM25AQI::begin_I2C(TwoWire *theWire) {
  *  @return True
  */
 bool Adafruit_PM25AQI::begin_UART(Stream *theSerial) {
-  // TODO: Rewrite to use PM25AQI UART and be backwards compatible
-  return true;
+  if (_pm25_uart != nullptr) {
+    return false;
+  }
+  _pm25_uart = new Adafruit_PM25AQI_UART();
+  return _pm25_uart->begin(theSerial);
 }
 
 /*!

@@ -21,7 +21,7 @@
  *  @param  serial
  *          Pointer to a Stream object (e.g., Serial, SoftwareSerial).
  */
-UARTDevice(Stream *serial) { _serial_dev = serial; }
+UARTDevice::UARTDevice(Stream *serial) { _serial_dev = serial; }
 
 /*!
  *  @brief  Dtor for the UARTDevice class.
@@ -66,8 +66,8 @@ int UARTDevice::peek() {
  *  @return The number of bytes available to read
  */
 int UARTDevice::available() {
-  if (_serial) {
-    return _serial->available();
+  if (_serial_dev != nullptr) {
+    return _serial_dev->available();
   }
   return 0;
 }
@@ -83,9 +83,9 @@ int UARTDevice::available() {
  *          Length of the data buffer.
  *  @return True if successful, false otherwise.
  */
-static bool uart_write(void *thiz, const uint8_t *buffer, size_t len) {
+bool UARTDevice::uart_write(void *thiz, const uint8_t *buffer, size_t len) {
   UARTDevice *dev = (UARTDevice *)thiz;
-  dev->_serial->write(buffer, len);
+  dev->_serial_dev->write(buffer, len);
   return true;
 }
 
@@ -100,17 +100,17 @@ static bool uart_write(void *thiz, const uint8_t *buffer, size_t len) {
  *          Length of the data to read.
  *  @return True if data is read successfully, false if a timeout occured.
  */
-static bool uart_read(void *thiz, uint8_t *buffer, size_t len) {
+bool UARTDevice::uart_read(void *thiz, uint8_t *buffer, size_t len) {
   UARTDevice *dev = (UARTDevice *)thiz;
   uint16_t timeout = 100;
-  while (dev->_serial->available() < len && timeout--) {
+  while (dev->_serial_dev->available() < len && timeout--) {
     delay(1);
   }
   if (timeout == 0) {
     return false;
   }
   for (size_t i = 0; i < len; i++) {
-    buffer[i] = dev->_serial->read();
+    buffer[i] = dev->_serial_dev->read();
   }
   return true;
 }
@@ -126,10 +126,6 @@ Adafruit_PM25AQI_UART::Adafruit_PM25AQI_UART() {
  *  @brief  Dtor for the Adafruit_PM25AQI_UART class.
  */
 Adafruit_PM25AQI_UART::~Adafruit_PM25AQI_UART() {
-  if (_serial_dev != nullptr) {
-    delete _serial_dev;
-    _serial_dev = nullptr;
-  }
   if (_uart_dev != nullptr) {
     delete _uart_dev;
     _uart_dev = nullptr;
@@ -162,99 +158,94 @@ bool Adafruit_PM25AQI_UART::read(PM25_AQI_Data *data) {
   uint8_t csum = 0;
   bool is_pm1006 = false;
 
-  if (!data || (_uart_dev == nullptr)) {
+  if (!data) {
     return false;
   }
+
+  if (!_uart_dev)
+    return false; // not initialized
 
   if (!_uart_dev->available()) {
     return false;
   }
 
   int skipped = 0;
-  // Skip over garbage data until we find the expected start sequence
-  while ((skipped < 32) && (_uart_dev->peek() != ADAFRUIT_PM_START_BYTE) &&
-         (_uart_dev->peek() != PMSA003I_START_BYTE)) {
+  while ((skipped < 32) && (_uart_dev->peek() != 0x42) &&
+         (_uart_dev->peek() != 0x16)) {
     _uart_dev->read();
     skipped++;
     if (!_uart_dev->available()) {
       return false;
     }
-
-    // Check for the start character in the stream for both sensors
-    uint8_t tmp_read_buf[1] = {0};
-    if ((_uart_dev->peek() != ADAFRUIT_PM_START_BYTE) &&
-        (_uart_dev->peek() != PMSA003I_START_BYTE)) {
-      // prv: _serial_dev->readBytes();
-      _uart_dev->read(tmp_read_buf, 1);
-      return false;
-    }
-
-    // Are we using the Cubic PM1006 sensor?
-    if (_uart_dev->peek() == PMSA003I_START_BYTE) {
-      is_pm1006 = true; // Set flag to indicate we are using the PM1006
-      bufLen =
-          20; // Reduce buffer read length to 20 bytes. Last 12 bytes ignored.
-    }
-
-    // Are there enough bytes to read from?
-    if (_uart_dev->available() < bufLen) {
-      return false;
-    }
-
-    // Read all available bytes from the serial stream
-    // _uart_dev->readBytes(buffer, bufLen);
-    _uart_dev->read(buffer, bufLen);
-
-    // Validate start byte for Adafruit PM sensors
-    if ((!is_pm1006 &&
-         (buffer[0] != ADAFRUIT_PM_START_BYTE || buffer[1] != 0x4d))) {
-      return false;
-    }
-
-    // Validate start header for Cubic PM1006 sensor
-    if (is_pm1006 && (buffer[0] != PMSA003I_START_BYTE || buffer[1] != 0x11 ||
-                      buffer[2] != 0x0B)) {
-      return false;
-    }
-
-    // Calculate checksum
-    if (!is_pm1006) {
-      // for adafruit pm sensors
-      for (uint8_t i = 0; i < 30; i++) {
-        sum += buffer[i];
-      }
-    } else {
-      // for cubic pm1006 sensor
-      for (uint8_t i = 0; i < bufLen; i++) {
-        csum += buffer[i];
-      }
-    }
-
-    // Since header and checksum are OK, parse data from the buffer
-    if (!is_pm1006) {
-      // For adafruit pm sensors, data comes in endian'd, this solves it so it
-      // works on all platforms
-      uint16_t buffer_u16[15];
-      for (uint8_t i = 0; i < 15; i++) {
-        buffer_u16[i] = buffer[2 + i * 2 + 1];
-        buffer_u16[i] += (buffer[2 + i * 2] << 8);
-      }
-      // put it into a nice struct :)
-      memcpy((void *)data, (void *)buffer_u16, 30);
-    } else {
-      // Cubic PM1006 sensors only produce a pm25_env reading
-      data->pm25_env = (buffer[5] << 8) | buffer[6];
-      data->checksum = sum;
-    }
-
-    // Validate checksum
-    if ((is_pm1006 && csum != 0) || (!is_pm1006 && sum != data->checksum)) {
-      return false;
-    }
-
-    // convert raw concentrations to AQI using parent class method
-    this->ConvertAQIData(data);
-
-    // success!
-    return true;
   }
+
+  // Check for the start character in the stream for both sensors
+  if ((_uart_dev->peek() != 0x42) && (_uart_dev->peek() != 0x16)) {
+    _uart_dev->read();
+    return false;
+  }
+
+  // Are we using the Cubic PM1006 sensor?
+  if (_uart_dev->peek() == 0x16) {
+    is_pm1006 = true; // Set flag to indicate we are using the PM1006
+    bufLen =
+        20; // Reduce buffer read length to 20 bytes. Last 12 bytes ignored.
+  }
+
+  // Are there enough bytes to read from?
+  if (_uart_dev->available() < bufLen) {
+    return false;
+  }
+
+  // Read all available bytes from the serial stream
+  _uart_dev->readBytes(buffer, bufLen);
+
+  // Validate start byte is correct if using Adafruit PM sensors
+  if ((!is_pm1006 && (buffer[0] != 0x42 || buffer[1] != 0x4d))) {
+    return false;
+  }
+
+  // Validate start header is correct if using Cubic PM1006 sensor
+  if (is_pm1006 &&
+      (buffer[0] != 0x16 || buffer[1] != 0x11 || buffer[2] != 0x0B)) {
+    return false;
+  }
+
+  // Calculate checksum
+  if (!is_pm1006) {
+    for (uint8_t i = 0; i < 30; i++) {
+      sum += buffer[i];
+    }
+  } else {
+    for (uint8_t i = 0; i < bufLen; i++) {
+      csum += buffer[i];
+    }
+  }
+
+  // Since header and checksum are OK, parse data from the buffer
+  if (!is_pm1006) {
+    // The data comes in endian'd, this solves it so it works on all platforms
+    uint16_t buffer_u16[15];
+    for (uint8_t i = 0; i < 15; i++) {
+      buffer_u16[i] = buffer[2 + i * 2 + 1];
+      buffer_u16[i] += (buffer[2 + i * 2] << 8);
+    }
+    // put it into a nice struct :)
+    memcpy((void *)data, (void *)buffer_u16, 30);
+  } else {
+    // Cubic PM1006 sensor only produces a pm25_env reading
+    data->pm25_env = (buffer[5] << 8) | buffer[6];
+    data->checksum = sum;
+  }
+
+  // Validate checksum
+  if ((is_pm1006 && csum != 0) || (!is_pm1006 && sum != data->checksum)) {
+    return false;
+  }
+
+  // convert raw concentrations to AQI using parent class method
+  this->ConvertAQIData(data);
+
+  // success!
+  return true;
+}
