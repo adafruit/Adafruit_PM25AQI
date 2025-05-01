@@ -44,10 +44,10 @@ typedef struct PMSAQIdata {
   uint16_t checksum; ///< Packet checksum
 
   // AQI conversion results:
-  uint8_t aqi_pm25_us;     ///< pm2.5 AQI of United States
-  uint8_t aqi_pm100_us;    ///< pm10 AQI of United States
-  uint8_t aqi_pm25_china;  ///< pm2.5 AQI of China
-  uint8_t aqi_pm100_china; ///< pm10 AQI of China
+  uint16_t aqi_pm25_us;     ///< pm2.5 AQI of United States
+  uint16_t aqi_pm100_us;    ///< pm10 AQI of United States
+  uint16_t aqi_pm25_china;  ///< pm2.5 AQI of China
+  uint16_t aqi_pm100_china; ///< pm10 AQI of China
 
 } PM25_AQI_Data;
 
@@ -63,6 +63,9 @@ public:
   // These are backwards compatible with the "old" library
   bool begin_I2C(TwoWire *theWire = &Wire);
   bool begin_UART(Stream *theStream);
+  // TODO: Implement
+  // bool begin_UART_Cubic(Stream *theStream);
+  // bool begin_UART_PM25(Stream *theStream);
   virtual bool read(PM25_AQI_Data *data);
 
 protected:

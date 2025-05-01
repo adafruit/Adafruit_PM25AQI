@@ -25,6 +25,21 @@
 #define ADAFRUIT_PM_START_BYTE 0x42 ///< Start byte for Adafruit's PM25 sensors
 #define PMSA003I_START_BYTE 0x16    ///< Start byte for Cubic PM1006
 
+class UARTDevice {
+public:
+  UARTDevice(Stream *serial);
+  ~UARTDevice();
+  bool CreateDevice();
+  static bool uart_write(void *thiz, const uint8_t *buffer, size_t len);
+  static bool uart_read(void *thiz, uint8_t *buffer, size_t len);
+  int peek();
+  int available();
+
+private:
+  Adafruit_GenericDevice *_generic_dev = nullptr;
+  Stream *_serial = nullptr;
+};
+
 /*!
  *  @brief  UART interface for the Adafruit PM2.5 Air Quality Sensor
             and Plantower PMSA003I Sensor.
@@ -34,10 +49,15 @@ public:
   Adafruit_PM25AQI_UART();
   ~Adafruit_PM25AQI_UART();
   bool begin(Stream *theSerial); // TODO: What should this take in?
+  // TODO: MAYBE BREAK OUT READ INTO READ_CUBIC OR READ_PM
+  // TODO: WE COULD ALSO BREAK OUT THE CLASS INTO ADAFRUIT_PM25AQI_UART_CUBIC
+  // AND ADAFRUIT_PM25AQI_UART_ADAFRUIT or we have a begin_UART(is_cubic) or
+  // something to set it up properly?
   virtual bool read(PM25_AQI_Data *data) override;
 
 private:
-  Stream *_serial_dev; // Underlying Stream instance (HardwareSerial, etc)
+  Stream *_serial_dev = nullptr;
+  UARTDevice *_uart_dev = nullptr;
   uint8_t _readbuffer[32];
 };
 
