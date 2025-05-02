@@ -107,7 +107,7 @@ bool Adafruit_PM25AQI::begin_UART(Stream *theSerial, bool is_pm1006) {
   if (_pm25_uart != nullptr) {
     return false;
   }
-  _pm25_uart = new Adafruit_PM25AQI_UART();
+  _pm25_uart = new Adafruit_PM25AQI_UART(is_pm1006);
   return _pm25_uart->begin(theSerial);
 }
 

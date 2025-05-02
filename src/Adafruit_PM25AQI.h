@@ -58,14 +58,10 @@ public:
   Adafruit_PM25AQI();
   virtual ~Adafruit_PM25AQI();
   virtual bool begin();
-  void ConvertAQIData(PM25_AQI_Data *data);
-  // These are backwards compatible with the "old" library
   bool begin_I2C(TwoWire *theWire = &Wire);
   bool begin_UART(Stream *theStream, bool is_pm1006 = false);
-  // TODO: Implement
-  // bool begin_UART_Cubic(Stream *theStream);
-  // bool begin_UART_PM25(Stream *theStream);
   virtual bool read(PM25_AQI_Data *data);
+  void ConvertAQIData(PM25_AQI_Data *data);
 
 protected:
   Adafruit_PM25AQI_I2C *_pm25_i2c = nullptr;

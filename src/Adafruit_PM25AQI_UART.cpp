@@ -171,11 +171,13 @@ bool Adafruit_PM25AQI_UART::read_PM25(PM25_AQI_Data *data) {
   uint16_t sum = 0;
   uint8_t csum = 0;
 
-  if (!data || !_uart_dev)
+  if (!data || !_uart_dev) {
     return false;
+  }
 
-  if (!_uart_dev->available())
+  if (!_uart_dev->available()) {
     return false;
+  }
 
   int skipped = 0;
   while ((skipped < 32) && (_uart_dev->peek() != 0x42)) {
@@ -241,14 +243,17 @@ bool Adafruit_PM25AQI_UART::read_PM1006(PM25_AQI_Data *data) {
   uint16_t sum = 0;
   uint8_t csum = 0;
 
-  if (!data || !_uart_dev)
+  if (!data || !_uart_dev) {
     return false;
+  }
 
-  if (!_uart_dev->available())
+  if (!_uart_dev->available()) {
     return false;
+  }
 
   int skipped = 0;
-  while ((skipped < 32) && (_uart_dev->peek() != 0x16)) {
+  while ((skipped < 32) && (_uart_dev->peek() != 0x16) &&
+         (_uart_dev->peek() != 0x42)) {
     _uart_dev->read();
     skipped++;
     if (!_uart_dev->available()) {
@@ -257,14 +262,15 @@ bool Adafruit_PM25AQI_UART::read_PM1006(PM25_AQI_Data *data) {
   }
 
   // Check for the start character in the stream
-  if ((_uart_dev->peek() != 0x42)) {
+  if ((_uart_dev->peek() == 16)) {
     _uart_dev->read();
     return false;
   }
 
   // Are there enough bytes to read from?
-  if (_uart_dev->available() < bufLen)
+  if (_uart_dev->available() < bufLen) {
     return false;
+  }
 
   // Read all available bytes from the serial stream
   _uart_dev->getGenericDevice()->read(buffer, bufLen);
@@ -285,8 +291,9 @@ bool Adafruit_PM25AQI_UART::read_PM1006(PM25_AQI_Data *data) {
   data->checksum = sum;
 
   // Validate checksum
-  if (csum != 0)
+  if (csum != 0) {
     return false;
+  }
 
   // convert raw concentrations to AQI using parent class method
   this->ConvertAQIData(data);
@@ -302,10 +309,9 @@ bool Adafruit_PM25AQI_UART::read_PM1006(PM25_AQI_Data *data) {
  *  @return True on successful read, False if timed out or bad data.
  */
 bool Adafruit_PM25AQI_UART::read(PM25_AQI_Data *data) {
-  // If we're using a Cubic PM1006 sensor, read from it
-  if (_is_pm1006)
+  if (_is_pm1006) {
     return read_PM1006(data);
-
-  // Otherwise, we're using an Adafruit PM25 sensor
-  return read_PM25(data);
+  } else {
+    return read_PM25(data);
+  }
 }
