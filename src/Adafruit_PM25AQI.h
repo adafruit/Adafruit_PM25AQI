@@ -19,12 +19,9 @@
 
 #ifndef ADAFRUIT_PM25AQI_H
 #define ADAFRUIT_PM25AQI_H
-
+#include "Adafruit_AQIUtils.h"
 #include "Arduino.h"
-#include <Adafruit_I2CDevice.h>
-
-// the i2c address
-#define PMSA003I_I2CADDR_DEFAULT 0x12 ///< PMSA003I has only one I2C address
+#include <Wire.h>
 
 /**! Structure holding Plantower's standard packet **/
 typedef struct PMSAQIdata {
@@ -46,35 +43,30 @@ typedef struct PMSAQIdata {
   uint16_t checksum; ///< Packet checksum
 
   // AQI conversion results:
-  uint8_t aqi_pm25_us;     ///< pm2.5 AQI of United States
-  uint8_t aqi_pm100_us;    ///< pm10 AQI of United States
-  uint8_t aqi_pm25_china;  ///< pm2.5 AQI of China
-  uint8_t aqi_pm100_china; ///< pm10 AQI of China
+  uint16_t aqi_pm25_us;     ///< pm2.5 AQI of United States
+  uint16_t aqi_pm100_us;    ///< pm10 AQI of United States
+  uint16_t aqi_pm25_china;  ///< pm2.5 AQI of China
+  uint16_t aqi_pm100_china; ///< pm10 AQI of China
 
 } PM25_AQI_Data;
 
-/*!
- *  @brief  Class that stores state and functions for interacting with
- *          PM2.5 Air Quality Sensor
- */
+class Adafruit_PM25AQI_I2C;  ///< Forward declaration
+class Adafruit_PM25AQI_UART; ///< Forward declaration
+
 class Adafruit_PM25AQI {
 public:
   Adafruit_PM25AQI();
+  virtual ~Adafruit_PM25AQI();
+  virtual bool begin();
   bool begin_I2C(TwoWire *theWire = &Wire);
-  bool begin_UART(Stream *theStream);
-  bool read(PM25_AQI_Data *data);
+  bool begin_UART(Stream *theStream, bool is_pm1006 = false);
+  virtual bool read(PM25_AQI_Data *data);
+  void ConvertAQIData(PM25_AQI_Data *data);
 
-  uint16_t pm25_aqi_us(float concentration);
-  uint16_t pm25_aqi_china(float concentration);
-  uint16_t pm100_aqi_us(float concentration);
-  uint16_t pm100_aqi_china(float concentration);
-  float linear(uint16_t aqi_high, uint16_t aqi_low, float conc_high,
-               float conc_low, float concentration);
-
-private:
-  Adafruit_I2CDevice *i2c_dev = NULL;
-  Stream *serial_dev = NULL;
-  uint8_t _readbuffer[32];
+protected:
+  Adafruit_PM25AQI_I2C *_pm25_i2c = nullptr;
+  Adafruit_PM25AQI_UART *_pm25_uart = nullptr;
+  Adafruit_AQIUtils *_aqi_utils = nullptr;
 };
 
 #endif

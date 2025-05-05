@@ -41,8 +41,8 @@ void setup() {
   // Uncomment the following for use with software serial
   //pmSerial.begin(9600);
 
-  if (! aqi.begin_UART(&Serial1)) { // connect to the sensor over hardware serial
-  //if (! aqi.begin_UART(&pmSerial)) { // connect to the sensor over software serial 
+  if (! aqi.begin_UART(&Serial1, true)) { // connect to the sensor over hardware serial
+  //if (! aqi.begin_UART(&pmSerial, true)) { // connect to the sensor over software serial 
     Serial.println("Could not find Cubic PM1006 sensor!");
     while (1) delay(10);
   }
